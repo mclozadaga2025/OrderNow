@@ -1,6 +1,6 @@
 import { Image, StyleSheet, View } from 'react-native';
 
-const androidBootstrapSplashImage = require('../assets/a_vibrant_and_youthful_mobile_splash_screen_for_thu_chi_app._a_soft_gradient.png');
+const androidBootstrapSplashImage = require('../assets/gombill_splash.png');
 
 const styles = StyleSheet.create({
   root: {
