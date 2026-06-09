@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { forwardRef, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { router } from "expo-router";
+import { forwardRef, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Modal,
   Platform,
@@ -10,8 +10,8 @@ import {
   type KeyboardTypeOptions,
   type TextInput,
   type TextInputProps,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   ActionPill,
   AvatarBadge,
@@ -20,17 +20,17 @@ import {
   OrdernowsScreen,
   PaperCard,
   SectionHeading,
-} from '@/components/ordernows/primitives';
+} from "@/components/ordernows/primitives";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Text } from '@/components/ui/text';
-import LucideIcon from '@/lib/icons/LucideIcon';
-import { localizeOrdernowsText } from '@/lib/localizeOrdernows';
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
+import LucideIcon from "@/lib/icons/LucideIcon";
+import { localizeOrdernowsText } from "@/lib/localizeOrdernows";
 import {
   type Member,
   type MenuItem,
@@ -39,13 +39,13 @@ import {
   UNGROUPED_FILTER_ID,
   formatVnd,
   parseVndInput,
-} from '@/lib/ordernows';
-import { type AppLanguage, useLanguage } from '@/lib/useLanguage';
-import { cn } from '@/lib/utils';
-import { useOrdernowsStore } from '@/stores/useOrdernowsStore';
-import { showNewTransactionInterstitial } from '@/components/ads/new-transaction-interstitial';
+} from "@/lib/ordernows";
+import { type AppLanguage, useLanguage } from "@/lib/useLanguage";
+import { cn } from "@/lib/utils";
+import { useOrdernowsStore } from "@/stores/useOrdernowsStore";
+import { showNewTransactionInterstitial } from "@/components/ads/new-transaction-interstitial";
 
-const DEFAULT_DISCOUNT = '';
+const DEFAULT_DISCOUNT = "";
 const DEFAULT_TOTAL_AMOUNT = 0;
 
 const NEW_TRANSACTION_COPY = {
@@ -53,131 +53,145 @@ const NEW_TRANSACTION_COPY = {
     menuItems: (count: number) => `${count} menu items`,
     shareFromRemaining: (amount: string) => `Share from remaining bill: ${amount}`,
     totalDue: (amount: string) => `Total due: ${amount}`,
-    itemOptional: 'Item - optional',
-    selectItem: 'Select item',
-    noMenuItems: 'No menu items',
-    noItem: 'No item',
-    closeItemPicker: 'Close item picker',
-    itemName: 'Item name',
-    amountOptional: 'Amount - optional',
-    amountRequired: 'Amount *',
-    discountPercent: 'Discount %',
+    itemOptional: "Item - optional",
+    selectItem: "Select item",
+    noMenuItems: "No menu items",
+    noItem: "No item",
+    closeItemPicker: "Close item picker",
+    selectedItems: (count: number) => `${count} selected`,
+    applyItems: "Apply dishes",
+    itemName: "Item name",
+    amountOptional: "Amount - optional",
+    amountRequired: "Amount *",
+    discountPercent: "Discount %",
     afterDiscount: (percent: number, amount: string) => `After ${percent}% off: ${amount}`,
-    title: 'New Transaction',
-    subtitle: 'Create a shared debit with menu items, member-level discounts, and split totals.',
-    badge: 'NEW DEBIT',
-    builder: 'Transaction Builder',
-    sharedTab: 'Shared Tab',
-    noGroupSelected: 'No group selected',
-    unclassified: 'Unclassified',
-    totalAmount: 'Total amount (VND) - optional',
-    totalHint: 'Optional: enter the bill total to split its remainder, or leave blank to use member amounts only.',
-    totalTooSmall: (amount: string) => `Total amount cannot be lower than member amounts (${amount}).`,
+    title: "New Transaction",
+    subtitle: "Create a shared debit with menu items, member-level discounts, and split totals.",
+    badge: "NEW DEBIT",
+    builder: "Transaction Builder",
+    sharedTab: "Shared Tab",
+    noGroupSelected: "No group selected",
+    unclassified: "Unclassified",
+    totalAmount: "Total amount (VND) - optional",
+    totalHint:
+      "Optional: enter the bill total to split its remainder, or leave blank to use member amounts only.",
+    totalTooSmall: (amount: string) =>
+      `Total amount cannot be lower than member amounts (${amount}).`,
     remainsForSharing: (amount: string) => `${amount} remains for members with the share icon on.`,
-    applyAllDiscount: 'Discount % (apply to all) - optional',
-    apply: 'Apply',
-    discountHint: 'Discounts reduce member amounts once. The entered bill total is not discounted again.',
-    group: 'Group',
-    selectGroup: 'Select group',
-    createGroup: 'Create group',
-    groupRequired: 'No saved groups yet. You can use unclassified members or add a group.',
-    manageGroups: 'Manage Groups',
-    venue: 'Venue',
-    selectVenue: 'Select venue - optional',
-    noVenue: 'No venue',
-    noVenues: 'No venues saved yet. You can continue without one or add a venue for quick menu choices.',
-    addVenue: 'Add Venue',
-    members: 'Members',
-    chooseParticipants: 'Choose participants',
-    noGroupMembers: 'This group does not have members yet.',
-    selectGroupPrompt: 'Select a group to choose participants.',
-    addMember: 'Add Member',
-    orderDetails: 'Order details',
-    memberOrders: 'Member orders',
-    addOrder: 'Add dish',
-    removeOrder: 'Remove dish',
-    removeMember: 'Remove member',
+    applyAllDiscount: "Discount % (apply to all) - optional",
+    apply: "Apply",
+    discountHint:
+      "Discounts reduce member amounts once. The entered bill total is not discounted again.",
+    group: "Group",
+    selectGroup: "Select group",
+    createGroup: "Create group",
+    groupRequired: "No saved groups yet. You can use unclassified members or add a group.",
+    manageGroups: "Manage Groups",
+    venue: "Venue",
+    selectVenue: "Select venue - optional",
+    noVenue: "No venue",
+    noVenues:
+      "No venues saved yet. You can continue without one or add a venue for quick menu choices.",
+    addVenue: "Add Venue",
+    members: "Members",
+    chooseParticipants: "Choose participants",
+    noGroupMembers: "This group does not have members yet.",
+    selectGroupPrompt: "Select a group to choose participants.",
+    addMember: "Add Member",
+    orderDetails: "Order details",
+    memberOrders: "Member orders",
+    addOrder: "Add dish",
+    removeOrder: "Remove dish",
+    removeMember: "Remove member",
     dishLabel: (index: number) => `Dish ${index}`,
-    noOrders: 'Select at least one member to add order rows.',
-    noteOptional: 'Note - optional',
-    notePlaceholder: 'Optional note...',
-    requestedTotal: 'Requested total',
-    optional: 'Optional',
+    noOrders: "Select at least one member to add order rows.",
+    noteOptional: "Note - optional",
+    notePlaceholder: "Optional note...",
+    requestedTotal: "Requested total",
+    optional: "Optional",
     beforeDiscount: (amount: string) => `Member amounts before discount: ${amount}`,
-    sharedSplit: 'Shared split',
+    sharedSplit: "Shared split",
     unassigned: (amount: string) => `${amount} is not assigned because sharing is off.`,
     divided: (count: number) => `Divided between ${count} member(s) with the share icon on.`,
-    enableSharing: 'Turn on a share icon to divide the remaining bill.',
-    discount: 'Discount',
-    totalCharged: 'Total charged',
+    enableSharing: "Turn on a share icon to divide the remaining bill.",
+    discount: "Discount",
+    totalCharged: "Total charged",
     minimumError: (amount: string) => `Total amount must be at least ${amount}.`,
-    amountError: 'Enter an amount for each selected member order, or turn on share with a total amount so the remaining bill can be assigned.',
-    save: 'Save Transaction',
+    amountError:
+      "Enter an amount for each selected member order, or turn on share with a total amount so the remaining bill can be assigned.",
+    save: "Save Transaction",
   },
   vi: {
     menuItems: (count: number) => `${count} món`,
     shareFromRemaining: (amount: string) => `Phần chia từ số tiền còn lại: ${amount}`,
     totalDue: (amount: string) => `Tổng cần trả: ${amount}`,
-    itemOptional: 'Món - tùy chọn',
-    selectItem: 'Chọn món',
-    noMenuItems: 'Chưa có món',
-    noItem: 'Không chọn món',
-    closeItemPicker: 'Đóng danh sách món',
-    itemName: 'Tên món',
-    amountOptional: 'Số tiền - tùy chọn',
-    amountRequired: 'Số tiền *',
-    discountPercent: 'Giảm giá %',
+    itemOptional: "Món - tùy chọn",
+    selectItem: "Chọn món",
+    noMenuItems: "Chưa có món",
+    noItem: "Không chọn món",
+    closeItemPicker: "Đóng danh sách món",
+    selectedItems: (count: number) => `${count} món đã chọn`,
+    applyItems: "Áp dụng món",
+    itemName: "Tên món",
+    amountOptional: "Số tiền - tùy chọn",
+    amountRequired: "Số tiền *",
+    discountPercent: "Giảm giá %",
     afterDiscount: (percent: number, amount: string) => `Sau khi giảm ${percent}%: ${amount}`,
-    title: 'Tạo giao dịch',
-    subtitle: 'Tạo khoản chi chung với món, giảm giá theo thành viên và tổng tiền chia.',
-    badge: 'KHOẢN CHI MỚI',
-    builder: 'Tạo giao dịch',
-    sharedTab: 'Chi chung',
-    noGroupSelected: 'Chưa chọn nhóm',
-    unclassified: 'Chưa phân nhóm',
-    totalAmount: 'Tổng tiền (VND) - tùy chọn',
-    totalHint: 'Tùy chọn: nhập tổng hóa đơn để chia phần còn lại, hoặc để trống và chỉ dùng số tiền từng thành viên.',
-    totalTooSmall: (amount: string) => `Tổng tiền không thể thấp hơn tiền của các thành viên (${amount}).`,
-    remainsForSharing: (amount: string) => `${amount} còn lại cho các thành viên đã bật biểu tượng chia.`,
-    applyAllDiscount: 'Giảm giá % (áp dụng tất cả) - tùy chọn',
-    apply: 'Áp dụng',
-    discountHint: 'Giảm giá chỉ trừ vào tiền thành viên một lần. Tổng hóa đơn đã nhập không bị giảm lần nữa.',
-    group: 'Nhóm',
-    selectGroup: 'Chọn nhóm',
-    createGroup: 'Tạo nhóm',
-    groupRequired: 'Chưa có nhóm đã lưu. Bạn có thể dùng thành viên chưa phân nhóm hoặc thêm nhóm.',
-    manageGroups: 'Quản lý nhóm',
-    venue: 'Địa điểm',
-    selectVenue: 'Chọn địa điểm - tùy chọn',
-    noVenue: 'Không chọn địa điểm',
-    noVenues: 'Chưa lưu địa điểm. Bạn có thể tiếp tục hoặc thêm địa điểm để chọn món nhanh.',
-    addVenue: 'Thêm địa điểm',
-    members: 'Thành viên',
-    chooseParticipants: 'Chọn người tham gia',
-    noGroupMembers: 'Nhóm này chưa có thành viên.',
-    selectGroupPrompt: 'Chọn nhóm để chọn người tham gia.',
-    addMember: 'Thêm thành viên',
-    orderDetails: 'Chi tiết đặt món',
-    memberOrders: 'Món của thành viên',
-    addOrder: 'Thêm món',
-    removeOrder: 'Xóa món',
-    removeMember: 'Xóa thành viên',
+    title: "Tạo giao dịch",
+    subtitle: "Tạo khoản chi chung với món, giảm giá theo thành viên và tổng tiền chia.",
+    badge: "KHOẢN CHI MỚI",
+    builder: "Tạo giao dịch",
+    sharedTab: "Chi chung",
+    noGroupSelected: "Chưa chọn nhóm",
+    unclassified: "Chưa phân nhóm",
+    totalAmount: "Tổng tiền (VND) - tùy chọn",
+    totalHint:
+      "Tùy chọn: nhập tổng hóa đơn để chia phần còn lại, hoặc để trống và chỉ dùng số tiền từng thành viên.",
+    totalTooSmall: (amount: string) =>
+      `Tổng tiền không thể thấp hơn tiền của các thành viên (${amount}).`,
+    remainsForSharing: (amount: string) =>
+      `${amount} còn lại cho các thành viên đã bật biểu tượng chia.`,
+    applyAllDiscount: "Giảm giá % (áp dụng tất cả) - tùy chọn",
+    apply: "Áp dụng",
+    discountHint:
+      "Giảm giá chỉ trừ vào tiền thành viên một lần. Tổng hóa đơn đã nhập không bị giảm lần nữa.",
+    group: "Nhóm",
+    selectGroup: "Chọn nhóm",
+    createGroup: "Tạo nhóm",
+    groupRequired: "Chưa có nhóm đã lưu. Bạn có thể dùng thành viên chưa phân nhóm hoặc thêm nhóm.",
+    manageGroups: "Quản lý nhóm",
+    venue: "Địa điểm",
+    selectVenue: "Chọn địa điểm - tùy chọn",
+    noVenue: "Không chọn địa điểm",
+    noVenues: "Chưa lưu địa điểm. Bạn có thể tiếp tục hoặc thêm địa điểm để chọn món nhanh.",
+    addVenue: "Thêm địa điểm",
+    members: "Thành viên",
+    chooseParticipants: "Chọn người tham gia",
+    noGroupMembers: "Nhóm này chưa có thành viên.",
+    selectGroupPrompt: "Chọn nhóm để chọn người tham gia.",
+    addMember: "Thêm thành viên",
+    orderDetails: "Chi tiết đặt món",
+    memberOrders: "Món của thành viên",
+    addOrder: "Thêm món",
+    removeOrder: "Xóa món",
+    removeMember: "Xóa thành viên",
     dishLabel: (index: number) => `Món ${index}`,
-    noOrders: 'Chọn ít nhất một thành viên để thêm món.',
-    noteOptional: 'Ghi chú - tùy chọn',
-    notePlaceholder: 'Ghi chú tùy chọn...',
-    requestedTotal: 'Tổng yêu cầu',
-    optional: 'Tùy chọn',
+    noOrders: "Chọn ít nhất một thành viên để thêm món.",
+    noteOptional: "Ghi chú - tùy chọn",
+    notePlaceholder: "Ghi chú tùy chọn...",
+    requestedTotal: "Tổng yêu cầu",
+    optional: "Tùy chọn",
     beforeDiscount: (amount: string) => `Tiền thành viên trước giảm giá: ${amount}`,
-    sharedSplit: 'Phần chia chung',
+    sharedSplit: "Phần chia chung",
     unassigned: (amount: string) => `${amount} chưa được phân bổ vì chưa bật chia.`,
     divided: (count: number) => `Đã chia cho ${count} thành viên bật biểu tượng chia.`,
-    enableSharing: 'Bật biểu tượng chia để phân bổ phần hóa đơn còn lại.',
-    discount: 'Giảm giá',
-    totalCharged: 'Tổng tính tiền',
+    enableSharing: "Bật biểu tượng chia để phân bổ phần hóa đơn còn lại.",
+    discount: "Giảm giá",
+    totalCharged: "Tổng tính tiền",
     minimumError: (amount: string) => `Tổng tiền phải ít nhất là ${amount}.`,
-    amountError: 'Nhập tiền cho món của từng thành viên, hoặc nhập tổng tiền và bật chia để phân bổ phần còn lại.',
-    save: 'Lưu giao dịch',
+    amountError:
+      "Nhập tiền cho món của từng thành viên, hoặc nhập tổng tiền và bật chia để phân bổ phần còn lại.",
+    save: "Lưu giao dịch",
   },
 } as const;
 
@@ -215,24 +229,24 @@ interface OrderRowSummary {
 
 function formatInputAmount(value: number, options?: { allowZero?: boolean }) {
   if (value < 0 || (value === 0 && !options?.allowZero)) {
-    return '';
+    return "";
   }
 
-  return new Intl.NumberFormat('vi-VN').format(value);
+  return new Intl.NumberFormat("vi-VN").format(value);
 }
 
 function formatAmountInput(value: string, options?: { allowZero?: boolean }) {
   const hasDigit = /\d/.test(value);
 
   if (!hasDigit) {
-    return '';
+    return "";
   }
 
   return formatInputAmount(parseVndInput(value), options);
 }
 
 function clampPercent(value: string) {
-  const numericValue = Number(value.replace(/[^0-9.]/g, ''));
+  const numericValue = Number(value.replace(/[^0-9.]/g, ""));
 
   if (!Number.isFinite(numericValue)) {
     return 0;
@@ -250,11 +264,46 @@ let nextOrderDraftOrdinal = 0;
 function createOrderDraft(discountInput: string): MemberOrderDraft {
   return {
     id: `order-draft-${Date.now()}-${nextOrderDraftOrdinal++}`,
-    menuItemId: '',
-    customItemName: '',
-    amountInput: '',
+    menuItemId: "",
+    customItemName: "",
+    amountInput: "",
     discountInput,
   };
+}
+
+function createOrderDraftFromMenuItem(
+  item: MenuItem,
+  discountInput: string,
+  existingDraft?: MemberOrderDraft,
+): MemberOrderDraft {
+  return {
+    ...(existingDraft ?? createOrderDraft(discountInput)),
+    menuItemId: item.id,
+    customItemName: item.name,
+    amountInput: existingDraft?.amountInput || formatInputAmount(item.price, { allowZero: true }),
+  };
+}
+
+function isEmptyOrderDraft(draft: MemberOrderDraft) {
+  return (
+    !draft.menuItemId &&
+    !draft.customItemName.trim() &&
+    !/\d/.test(draft.amountInput) &&
+    !draft.discountInput.trim()
+  );
+}
+
+function uniqueMenuItemIds(itemIds: string[]) {
+  const seen = new Set<string>();
+
+  return itemIds.filter((itemId) => {
+    if (seen.has(itemId)) {
+      return false;
+    }
+
+    seen.add(itemId);
+    return true;
+  });
 }
 
 function getSelectedGroupMembers(members: Member[], selectedGroupId: string) {
@@ -275,7 +324,7 @@ function CardField({
   className?: string;
 }) {
   return (
-    <View className={cn('mb-3', className)}>
+    <View className={cn("mb-3", className)}>
       <Text className="mb-2 text-caption uppercase tracking-[1.7px] text-muted-foreground">
         {label}
       </Text>
@@ -290,9 +339,9 @@ interface OrderInputProps {
   placeholder?: string;
   keyboardType?: KeyboardTypeOptions;
   className?: string;
-  returnKeyType?: TextInputProps['returnKeyType'];
-  blurOnSubmit?: TextInputProps['blurOnSubmit'];
-  onSubmitEditing?: TextInputProps['onSubmitEditing'];
+  returnKeyType?: TextInputProps["returnKeyType"];
+  blurOnSubmit?: TextInputProps["blurOnSubmit"];
+  onSubmitEditing?: TextInputProps["onSubmitEditing"];
 }
 
 const OrderInput = forwardRef<TextInput, OrderInputProps>(function OrderInput(
@@ -306,10 +355,12 @@ const OrderInput = forwardRef<TextInput, OrderInputProps>(function OrderInput(
     blurOnSubmit,
     onSubmitEditing,
   },
-  ref
+  ref,
 ) {
   return (
-    <View className={cn('rounded-[20px] border-2 border-border bg-background px-4 py-3', className)}>
+    <View
+      className={cn("rounded-[20px] border-2 border-border bg-background px-4 py-3", className)}
+    >
       <Input
         ref={ref}
         value={value}
@@ -339,15 +390,7 @@ function MenuItemOptionLabel({ item }: { item: MenuItem }) {
   );
 }
 
-function SummaryRow({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-}) {
+function SummaryRow({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <View className="border-b border-border py-3 last:border-b-0">
       <View className="flex-row items-center justify-between gap-4">
@@ -378,48 +421,60 @@ function VenueOptionCard({
     <Pressable
       onPress={onPress}
       className={cn(
-        'mr-3 w-64 rounded-[24px] border-2 p-4 active:opacity-80',
-        active ? 'border-primary bg-primary' : 'border-border bg-card'
-      )}>
+        "mr-3 w-64 rounded-[24px] border-2 p-4 active:opacity-80",
+        active ? "border-primary bg-primary" : "border-border bg-card",
+      )}
+    >
       <View className="mb-4 flex-row items-start justify-between gap-3">
         <View
           className={cn(
-            'h-12 w-12 items-center justify-center rounded-[18px] border-2',
-            active ? 'border-primary-foreground bg-primary-foreground' : 'border-border bg-secondary'
-          )}>
+            "h-12 w-12 items-center justify-center rounded-[18px] border-2",
+            active
+              ? "border-primary-foreground bg-primary-foreground"
+              : "border-border bg-secondary",
+          )}
+        >
           <LucideIcon
             name={venue.icon}
-            className={active ? 'text-primary' : 'text-foreground'}
+            className={active ? "text-primary" : "text-foreground"}
             size={20}
             strokeWidth={1.9}
           />
         </View>
         <Text
           className={cn(
-            'rounded-full border px-2 py-1 text-caption uppercase tracking-[1.5px]',
+            "rounded-full border px-2 py-1 text-caption uppercase tracking-[1.5px]",
             active
-              ? 'border-primary-foreground text-primary-foreground'
-              : 'border-border text-muted-foreground'
-          )}>
+              ? "border-primary-foreground text-primary-foreground"
+              : "border-border text-muted-foreground",
+          )}
+        >
           {venue.openUntil}
         </Text>
       </View>
-      <Text className={cn('text-h4 uppercase', active ? 'text-primary-foreground' : 'text-foreground')}>
+      <Text
+        className={cn("text-h4 uppercase", active ? "text-primary-foreground" : "text-foreground")}
+      >
         {venue.name}
       </Text>
       <Text
         className={cn(
-          'mt-1 text-body',
-          active ? 'text-primary-foreground' : 'text-muted-foreground'
+          "mt-1 text-body",
+          active ? "text-primary-foreground" : "text-muted-foreground",
         )}
-        numberOfLines={1}>
-        {localizeOrdernowsText(venue.address || (language === 'vi' ? 'Chưa có địa chỉ' : 'No address yet'), language)}
+        numberOfLines={1}
+      >
+        {localizeOrdernowsText(
+          venue.address || (language === "vi" ? "Chưa có địa chỉ" : "No address yet"),
+          language,
+        )}
       </Text>
       <Text
         className={cn(
-          'mt-3 text-caption uppercase tracking-[1.5px]',
-          active ? 'text-primary-foreground' : 'text-muted-foreground'
-        )}>
+          "mt-3 text-caption uppercase tracking-[1.5px]",
+          active ? "text-primary-foreground" : "text-muted-foreground",
+        )}
+      >
         {copy.menuItems(venue.menuItems.length)}
       </Text>
     </Pressable>
@@ -441,9 +496,10 @@ function MemberSelectorCard({
     <Pressable
       onPress={onPress}
       className={cn(
-        'mr-3 w-44 rounded-[24px] border-2 p-3 active:opacity-80',
-        active ? 'border-foreground bg-foreground' : 'border-border bg-card'
-      )}>
+        "mr-3 w-44 rounded-[24px] border-2 p-3 active:opacity-80",
+        active ? "border-foreground bg-foreground" : "border-border bg-card",
+      )}
+    >
       <View className="mb-3 flex-row items-center justify-between gap-2">
         <AvatarBadge avatar={member.avatar} size="sm" />
         {active ? (
@@ -453,14 +509,22 @@ function MemberSelectorCard({
         ) : null}
       </View>
       <Text
-        className={cn('text-button uppercase tracking-[1.2px]', active ? 'text-background' : 'text-foreground')}
-        numberOfLines={1}>
+        className={cn(
+          "text-button uppercase tracking-[1.2px]",
+          active ? "text-background" : "text-foreground",
+        )}
+        numberOfLines={1}
+      >
         {member.name}
       </Text>
       <Text
-        className={cn('mt-1 text-caption', active ? 'text-background' : 'text-muted-foreground')}
-        numberOfLines={1}>
-        {localizeOrdernowsText(member.favoriteDrink || (language === 'vi' ? 'Chưa cập nhật' : 'Unknown'), language)}
+        className={cn("mt-1 text-caption", active ? "text-background" : "text-muted-foreground")}
+        numberOfLines={1}
+      >
+        {localizeOrdernowsText(
+          member.favoriteDrink || (language === "vi" ? "Chưa cập nhật" : "Unknown"),
+          language,
+        )}
       </Text>
     </Pressable>
   );
@@ -475,7 +539,10 @@ function OrderLineEditor({
   isShared,
   hasSelectedVenue,
   menuItems,
-  onSelectMenuItem,
+  selectedMenuItemIds,
+  onApplyMenuItemSelection,
+  onClearMenuItems,
+  onToggleMenuItem,
   onUpdate,
   onRemove,
   copy,
@@ -488,23 +555,53 @@ function OrderLineEditor({
   isShared: boolean;
   hasSelectedVenue: boolean;
   menuItems: MenuItem[];
-  onSelectMenuItem: (item: MenuItem | undefined) => void;
+  selectedMenuItemIds: string[];
+  onApplyMenuItemSelection: (itemIds: string[]) => void;
+  onClearMenuItems: () => void;
+  onToggleMenuItem: (item: MenuItem) => void;
   onUpdate: (patch: Partial<MemberOrderDraft>) => void;
   onRemove: () => void;
   copy: NewTransactionCopy;
 }) {
   const [isNativeItemPickerOpen, setIsNativeItemPickerOpen] = useState(false);
+  const [nativeSelectedMenuItemIds, setNativeSelectedMenuItemIds] = useState<string[]>([]);
   const amountInputRef = useRef<TextInput>(null);
   const discountInputRef = useRef<TextInput>(null);
   const selectedMenuItem = menuItems.find((item) => item.id === draft.menuItemId);
+  const selectedMenuItemIdSet = useMemo(() => new Set(selectedMenuItemIds), [selectedMenuItemIds]);
+  const nativeSelectedMenuItemIdSet = useMemo(
+    () => new Set(nativeSelectedMenuItemIds),
+    [nativeSelectedMenuItemIds],
+  );
+  const pickerLabel =
+    selectedMenuItem?.name ??
+    (menuItems.length > 0
+      ? selectedMenuItemIds.length > 0
+        ? copy.selectedItems(selectedMenuItemIds.length)
+        : copy.selectItem
+      : copy.noMenuItems);
+  const pickerHasSelection = Boolean(selectedMenuItem) || selectedMenuItemIds.length > 0;
 
-  function selectNativeMenuItem(item: MenuItem | undefined) {
+  function openNativeItemPicker() {
+    setNativeSelectedMenuItemIds(selectedMenuItemIds);
+    setIsNativeItemPickerOpen(true);
+  }
+
+  function toggleNativeMenuItem(itemId: string) {
+    setNativeSelectedMenuItemIds((current) =>
+      current.includes(itemId)
+        ? current.filter((selectedItemId) => selectedItemId !== itemId)
+        : [...current, itemId],
+    );
+  }
+
+  function applyNativeMenuItemSelection() {
     setIsNativeItemPickerOpen(false);
-    onSelectMenuItem(item);
+    onApplyMenuItemSelection(nativeSelectedMenuItemIds);
   }
 
   return (
-    <View className={cn(index > 0 && 'mt-4 border-t border-border pt-4')}>
+    <View className={cn(index > 0 && "mt-4 border-t border-border pt-4")}>
       <View className="mb-3 flex-row items-center justify-between gap-3">
         <Text className="text-caption uppercase tracking-[1.5px] text-muted-foreground">
           {copy.dishLabel(index + 1)}
@@ -515,7 +612,8 @@ function OrderLineEditor({
             accessibilityRole="button"
             hitSlop={8}
             onPress={onRemove}
-            className="h-8 w-8 items-center justify-center rounded-full border-2 border-border bg-background active:opacity-80">
+            className="h-8 w-8 items-center justify-center rounded-full border-2 border-border bg-background active:opacity-80"
+          >
             <LucideIcon name="X" className="text-destructive" size={14} strokeWidth={2.2} />
           </Pressable>
         ) : null}
@@ -523,36 +621,68 @@ function OrderLineEditor({
 
       <CardField label={copy.itemOptional}>
         {hasSelectedVenue ? (
-          Platform.OS === 'web' ? (
+          Platform.OS === "web" ? (
             <DropdownMenu>
               <DropdownMenuTrigger
                 disabled={menuItems.length === 0}
-                className="min-h-[52px] flex-row items-center justify-between gap-3 rounded-[20px] border-2 border-border bg-background px-4 py-3 active:opacity-80">
+                className="min-h-[52px] flex-row items-center justify-between gap-3 rounded-[20px] border-2 border-border bg-background px-4 py-3 active:opacity-80"
+              >
                 <Text
                   className={cn(
-                    'flex-1 text-body',
-                    selectedMenuItem ? 'text-foreground' : 'text-muted-foreground'
+                    "flex-1 text-body",
+                    pickerHasSelection ? "text-foreground" : "text-muted-foreground",
                   )}
-                  numberOfLines={1}>
-                  {selectedMenuItem?.name ?? (menuItems.length > 0 ? copy.selectItem : copy.noMenuItems)}
+                  numberOfLines={1}
+                >
+                  {pickerLabel}
                 </Text>
-                <LucideIcon name="ChevronDown" className="text-muted-foreground" size={16} strokeWidth={2} />
+                <LucideIcon
+                  name="ChevronDown"
+                  className="text-muted-foreground"
+                  size={16}
+                  strokeWidth={2}
+                />
               </DropdownMenuTrigger>
               {menuItems.length > 0 ? (
-                <DropdownMenuContent align="start" className="min-w-[280px] rounded-[18px] border-2 border-border bg-card p-1">
-                  <DropdownMenuItem onPress={() => onSelectMenuItem(undefined)} className="px-3 py-3">
-                    <View className="w-4">
-                      {!selectedMenuItem ? (
-                        <LucideIcon name="Check" className="text-foreground" size={15} strokeWidth={2.3} />
+                <DropdownMenuContent
+                  align="start"
+                  className="min-w-[280px] rounded-[18px] border-2 border-border bg-card p-1"
+                >
+                  <DropdownMenuItem onPress={onClearMenuItems} className="px-3 py-3">
+                    <View className="h-5 w-5 items-center justify-center rounded-[7px] border-2 border-border">
+                      {selectedMenuItemIds.length === 0 ? (
+                        <LucideIcon
+                          name="Check"
+                          className="text-foreground"
+                          size={15}
+                          strokeWidth={2.3}
+                        />
                       ) : null}
                     </View>
                     <Text className="flex-1 text-body text-foreground">{copy.noItem}</Text>
                   </DropdownMenuItem>
                   {menuItems.map((item) => (
-                    <DropdownMenuItem key={item.id} onPress={() => onSelectMenuItem(item)} className="px-3 py-3">
-                      <View className="w-4">
-                        {draft.menuItemId === item.id ? (
-                          <LucideIcon name="Check" className="text-foreground" size={15} strokeWidth={2.3} />
+                    <DropdownMenuItem
+                      key={item.id}
+                      closeOnPress={false}
+                      onPress={() => onToggleMenuItem(item)}
+                      className="px-3 py-3"
+                    >
+                      <View
+                        className={cn(
+                          "h-5 w-5 items-center justify-center rounded-[7px] border-2",
+                          selectedMenuItemIdSet.has(item.id)
+                            ? "border-foreground bg-foreground"
+                            : "border-border bg-background",
+                        )}
+                      >
+                        {selectedMenuItemIdSet.has(item.id) ? (
+                          <LucideIcon
+                            name="Check"
+                            className="text-background"
+                            size={14}
+                            strokeWidth={2.5}
+                          />
                         ) : null}
                       </View>
                       <MenuItemOptionLabel item={item} />
@@ -566,17 +696,24 @@ function OrderLineEditor({
               <Pressable
                 accessibilityRole="button"
                 disabled={menuItems.length === 0}
-                onPress={() => setIsNativeItemPickerOpen(true)}
-                className="min-h-[52px] flex-row items-center justify-between gap-3 rounded-[20px] border-2 border-border bg-background px-4 py-3 active:opacity-80">
+                onPress={openNativeItemPicker}
+                className="min-h-[52px] flex-row items-center justify-between gap-3 rounded-[20px] border-2 border-border bg-background px-4 py-3 active:opacity-80"
+              >
                 <Text
                   className={cn(
-                    'flex-1 text-body',
-                    selectedMenuItem ? 'text-foreground' : 'text-muted-foreground'
+                    "flex-1 text-body",
+                    pickerHasSelection ? "text-foreground" : "text-muted-foreground",
                   )}
-                  numberOfLines={1}>
-                  {selectedMenuItem?.name ?? (menuItems.length > 0 ? copy.selectItem : copy.noMenuItems)}
+                  numberOfLines={1}
+                >
+                  {pickerLabel}
                 </Text>
-                <LucideIcon name="ChevronDown" className="text-muted-foreground" size={16} strokeWidth={2} />
+                <LucideIcon
+                  name="ChevronDown"
+                  className="text-muted-foreground"
+                  size={16}
+                  strokeWidth={2}
+                />
               </Pressable>
               <Modal
                 animationType="fade"
@@ -584,7 +721,8 @@ function OrderLineEditor({
                 onRequestClose={() => setIsNativeItemPickerOpen(false)}
                 statusBarTranslucent
                 transparent
-                visible={isNativeItemPickerOpen && menuItems.length > 0}>
+                visible={isNativeItemPickerOpen && menuItems.length > 0}
+              >
                 <SafeAreaView className="flex-1 justify-end bg-overlay/80 px-4 py-6">
                   <Pressable
                     accessibilityLabel={copy.closeItemPicker}
@@ -600,18 +738,30 @@ function OrderLineEditor({
                         accessibilityRole="button"
                         hitSlop={8}
                         onPress={() => setIsNativeItemPickerOpen(false)}
-                        className="h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-background active:opacity-80">
-                        <LucideIcon name="X" className="text-foreground" size={15} strokeWidth={2.2} />
+                        className="h-9 w-9 items-center justify-center rounded-full border-2 border-border bg-background active:opacity-80"
+                      >
+                        <LucideIcon
+                          name="X"
+                          className="text-foreground"
+                          size={15}
+                          strokeWidth={2.2}
+                        />
                       </Pressable>
                     </View>
                     <ScrollView className="max-h-80" keyboardShouldPersistTaps="handled">
                       <Pressable
                         accessibilityRole="button"
-                        onPress={() => selectNativeMenuItem(undefined)}
-                        className="flex-row items-center gap-2 border-t border-border px-4 py-4 active:bg-secondary">
-                        <View className="w-4">
-                          {!selectedMenuItem ? (
-                            <LucideIcon name="Check" className="text-foreground" size={15} strokeWidth={2.3} />
+                        onPress={() => setNativeSelectedMenuItemIds([])}
+                        className="flex-row items-center gap-2 border-t border-border px-4 py-4 active:bg-secondary"
+                      >
+                        <View className="h-5 w-5 items-center justify-center rounded-[7px] border-2 border-border">
+                          {nativeSelectedMenuItemIds.length === 0 ? (
+                            <LucideIcon
+                              name="Check"
+                              className="text-foreground"
+                              size={15}
+                              strokeWidth={2.3}
+                            />
                           ) : null}
                         </View>
                         <Text className="text-body text-foreground">{copy.noItem}</Text>
@@ -620,17 +770,37 @@ function OrderLineEditor({
                         <Pressable
                           accessibilityRole="button"
                           key={item.id}
-                          onPress={() => selectNativeMenuItem(item)}
-                          className="flex-row items-center gap-2 border-t border-border px-4 py-4 active:bg-secondary">
-                          <View className="w-4">
-                            {draft.menuItemId === item.id ? (
-                              <LucideIcon name="Check" className="text-foreground" size={15} strokeWidth={2.3} />
+                          onPress={() => toggleNativeMenuItem(item.id)}
+                          className="flex-row items-center gap-2 border-t border-border px-4 py-4 active:bg-secondary"
+                        >
+                          <View
+                            className={cn(
+                              "h-5 w-5 items-center justify-center rounded-[7px] border-2",
+                              nativeSelectedMenuItemIdSet.has(item.id)
+                                ? "border-foreground bg-foreground"
+                                : "border-border bg-background",
+                            )}
+                          >
+                            {nativeSelectedMenuItemIdSet.has(item.id) ? (
+                              <LucideIcon
+                                name="Check"
+                                className="text-background"
+                                size={14}
+                                strokeWidth={2.5}
+                              />
                             ) : null}
                           </View>
                           <MenuItemOptionLabel item={item} />
                         </Pressable>
                       ))}
                     </ScrollView>
+                    <View className="border-t border-border p-4">
+                      <ActionPill
+                        label={copy.applyItems}
+                        icon="ListPlus"
+                        onPress={applyNativeMenuItemSelection}
+                      />
+                    </View>
                   </View>
                 </SafeAreaView>
               </Modal>
@@ -639,7 +809,7 @@ function OrderLineEditor({
         ) : (
           <OrderInput
             value={draft.customItemName}
-            onChangeText={(customItemName) => onUpdate({ customItemName, menuItemId: '' })}
+            onChangeText={(customItemName) => onUpdate({ customItemName, menuItemId: "" })}
             placeholder={copy.itemName}
             returnKeyType="next"
             blurOnSubmit={false}
@@ -649,7 +819,10 @@ function OrderLineEditor({
       </CardField>
 
       <View className="flex-row gap-3">
-        <CardField label={hasRequestedTotal && isShared ? copy.amountOptional : copy.amountRequired} className="flex-1">
+        <CardField
+          label={hasRequestedTotal && isShared ? copy.amountOptional : copy.amountRequired}
+          className="flex-1"
+        >
           <OrderInput
             ref={amountInputRef}
             value={draft.amountInput}
@@ -687,7 +860,9 @@ function OrderCard({
   hasRequestedTotal,
   hasSelectedVenue,
   menuItems,
-  onSelectMenuItem,
+  onApplyMenuItemSelection,
+  onClearMenuItems,
+  onToggleMenuItem,
   onUpdate,
   onAddOrder,
   onRemoveOrder,
@@ -701,7 +876,9 @@ function OrderCard({
   hasRequestedTotal: boolean;
   hasSelectedVenue: boolean;
   menuItems: MenuItem[];
-  onSelectMenuItem: (draftId: string, item: MenuItem | undefined) => void;
+  onApplyMenuItemSelection: (itemIds: string[]) => void;
+  onClearMenuItems: () => void;
+  onToggleMenuItem: (item: MenuItem) => void;
   onUpdate: (draftId: string, patch: Partial<MemberOrderDraft>) => void;
   onAddOrder: () => void;
   onRemoveOrder: (draftId: string) => void;
@@ -709,6 +886,11 @@ function OrderCard({
   onToggleShared: () => void;
   copy: NewTransactionCopy;
 }) {
+  const selectedMenuItemIds = useMemo(
+    () => uniqueMenuItemIds(drafts.map((draft) => draft.menuItemId).filter(Boolean)),
+    [drafts],
+  );
+
   return (
     <PaperCard className="mb-3 p-4">
       <View className="mb-4 flex-row items-start gap-3">
@@ -728,12 +910,13 @@ function OrderCard({
           accessibilityRole="button"
           onPress={onToggleShared}
           className={cn(
-            'h-10 w-10 items-center justify-center rounded-full border-2 active:opacity-80',
-            summary.shared ? 'border-foreground bg-foreground' : 'border-border bg-background'
-          )}>
+            "h-10 w-10 items-center justify-center rounded-full border-2 active:opacity-80",
+            summary.shared ? "border-foreground bg-foreground" : "border-border bg-background",
+          )}
+        >
           <LucideIcon
             name="Share2"
-            className={summary.shared ? 'text-background' : 'text-foreground'}
+            className={summary.shared ? "text-background" : "text-foreground"}
             size={16}
             strokeWidth={2.2}
           />
@@ -743,7 +926,8 @@ function OrderCard({
           accessibilityLabel={copy.addOrder}
           accessibilityRole="button"
           onPress={onAddOrder}
-          className="h-10 w-10 items-center justify-center rounded-full border-2 border-border bg-background active:opacity-80">
+          className="h-10 w-10 items-center justify-center rounded-full border-2 border-border bg-background active:opacity-80"
+        >
           <LucideIcon name="Plus" className="text-foreground" size={17} strokeWidth={2.2} />
         </Pressable>
 
@@ -751,7 +935,8 @@ function OrderCard({
           accessibilityLabel={copy.removeMember}
           accessibilityRole="button"
           onPress={onRemoveMember}
-          className="h-10 w-10 items-center justify-center rounded-full border-2 border-border bg-background active:opacity-80">
+          className="h-10 w-10 items-center justify-center rounded-full border-2 border-border bg-background active:opacity-80"
+        >
           <LucideIcon name="Minus" className="text-destructive" size={17} strokeWidth={2.2} />
         </Pressable>
       </View>
@@ -761,7 +946,7 @@ function OrderCard({
           summary.lineSummaries.find((entry) => entry.draftId === draft.id) ??
           ({
             draftId: draft.id,
-            itemName: draft.customItemName.trim() || 'Shared tab',
+            itemName: draft.customItemName.trim() || "Shared tab",
             rawAmount: parseVndInput(draft.amountInput),
             discountPercent: clampPercent(draft.discountInput),
             discountAmount: 0,
@@ -779,7 +964,10 @@ function OrderCard({
             isShared={summary.shared}
             hasSelectedVenue={hasSelectedVenue}
             menuItems={menuItems}
-            onSelectMenuItem={(item) => onSelectMenuItem(draft.id, item)}
+            selectedMenuItemIds={selectedMenuItemIds}
+            onApplyMenuItemSelection={onApplyMenuItemSelection}
+            onClearMenuItems={onClearMenuItems}
+            onToggleMenuItem={onToggleMenuItem}
             onUpdate={(patch) => onUpdate(draft.id, patch)}
             onRemove={() => onRemoveOrder(draft.id)}
             copy={copy}
@@ -798,11 +986,11 @@ export default function NewTransactionScreen() {
   const venues = useOrdernowsStore((state) => state.venues);
   const addTransaction = useOrdernowsStore((state) => state.addTransaction);
 
-  const [selectedGroupId, setSelectedGroupId] = useState('');
-  const [selectedVenueId, setSelectedVenueId] = useState('');
+  const [selectedGroupId, setSelectedGroupId] = useState("");
+  const [selectedVenueId, setSelectedVenueId] = useState("");
   const [amountInput, setAmountInput] = useState(formatInputAmount(DEFAULT_TOTAL_AMOUNT));
   const [discountInput, setDiscountInput] = useState(DEFAULT_DISCOUNT);
-  const [note, setNote] = useState('');
+  const [note, setNote] = useState("");
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
   const [sharedMemberIds, setSharedMemberIds] = useState<string[]>([]);
   const [ordersByMember, setOrdersByMember] = useState<Record<string, MemberOrderDraft[]>>({});
@@ -814,25 +1002,23 @@ export default function NewTransactionScreen() {
   const selectedGroupLabel =
     selectedGroupId === UNGROUPED_FILTER_ID
       ? copy.unclassified
-      : selectedGroup?.name ?? copy.noGroupSelected;
+      : (selectedGroup?.name ?? copy.noGroupSelected);
   const menuItems = useMemo(() => selectedVenue?.menuItems ?? [], [selectedVenue]);
   const groupMembers = useMemo(
     () => getSelectedGroupMembers(members, selectedGroupId),
-    [members, selectedGroupId]
+    [members, selectedGroupId],
   );
 
   useEffect(() => {
     setSelectedGroupId((current) =>
       !current || current === UNGROUPED_FILTER_ID || groups.some((group) => group.id === current)
         ? current
-        : ''
+        : "",
     );
   }, [groups]);
 
   useEffect(() => {
-    setSelectedVenueId((current) =>
-      venues.some((venue) => venue.id === current) ? current : ''
-    );
+    setSelectedVenueId((current) => (venues.some((venue) => venue.id === current) ? current : ""));
   }, [venues]);
 
   useEffect(() => {
@@ -849,12 +1035,12 @@ export default function NewTransactionScreen() {
           memberId,
           drafts.map((draft) => ({
             ...draft,
-            menuItemId: '',
-            customItemName: '',
-            amountInput: '',
+            menuItemId: "",
+            customItemName: "",
+            amountInput: "",
           })),
-        ])
-      )
+        ]),
+      ),
     );
   }, [selectedVenueId]);
 
@@ -866,16 +1052,15 @@ export default function NewTransactionScreen() {
         const currentDrafts = next[memberId] ?? [];
         const nextDrafts = currentDrafts.map((draft) => {
           const selectedItemStillExists =
-            !draft.menuItemId ||
-            menuItems.some((item) => item.id === draft.menuItemId);
+            !draft.menuItemId || menuItems.some((item) => item.id === draft.menuItemId);
 
           return selectedItemStillExists
             ? draft
             : {
                 ...draft,
-                menuItemId: '',
-                customItemName: '',
-                amountInput: '',
+                menuItemId: "",
+                customItemName: "",
+                amountInput: "",
               };
         });
 
@@ -891,7 +1076,7 @@ export default function NewTransactionScreen() {
       const drafts = ordersByMember[memberId] ?? [createOrderDraft(discountInput)];
       const lineSummaries = drafts.map((draft) => {
         const selectedMenuItem = menuItems.find((item) => item.id === draft.menuItemId);
-        const itemName = draft.customItemName.trim() || selectedMenuItem?.name || 'Shared tab';
+        const itemName = draft.customItemName.trim() || selectedMenuItem?.name || "Shared tab";
         const rawAmount = parseVndInput(draft.amountInput);
         const discountPercent = clampPercent(draft.discountInput);
         const discountedAmount = calculateDiscountedAmount(rawAmount, discountPercent);
@@ -906,9 +1091,9 @@ export default function NewTransactionScreen() {
         };
       });
       const namedItems = lineSummaries
-        .filter((line) => line.itemName !== 'Shared tab')
+        .filter((line) => line.itemName !== "Shared tab")
         .map((line) => line.itemName);
-      const itemName = namedItems.length > 0 ? namedItems.join(', ') : 'Shared tab';
+      const itemName = namedItems.length > 0 ? namedItems.join(", ") : "Shared tab";
       const rawAmount = lineSummaries.reduce((sum, line) => sum + line.rawAmount, 0);
       const discountAmount = lineSummaries.reduce((sum, line) => sum + line.discountAmount, 0);
       const discountedAmount = lineSummaries.reduce((sum, line) => sum + line.discountedAmount, 0);
@@ -934,7 +1119,8 @@ export default function NewTransactionScreen() {
     const isRequestedTotalTooSmall = hasRequestedTotal && requestedTotal < lineSubtotal;
     const sharedPool = Math.max(requestedTotal - discountedItemTotal, 0);
     const membersSharing = rows.filter((row) => row.shared).map((row) => row.memberId);
-    const baseSplit = membersSharing.length > 0 ? Math.floor(sharedPool / membersSharing.length) : 0;
+    const baseSplit =
+      membersSharing.length > 0 ? Math.floor(sharedPool / membersSharing.length) : 0;
     let remainingSharedPool = sharedPool;
 
     const rowsWithTotals = rows.map((row) => {
@@ -963,8 +1149,8 @@ export default function NewTransactionScreen() {
     const subtotal = lineSubtotal + allocatedSharedPool;
     const discountValues = summaries.flatMap((row) =>
       row.lineSummaries
-        .filter((line) => line.rawAmount > 0 || line.itemName !== 'Shared tab')
-        .map((line) => line.discountPercent)
+        .filter((line) => line.rawAmount > 0 || line.itemName !== "Shared tab")
+        .map((line) => line.discountPercent),
     );
     const uniformDiscount =
       discountValues.length > 0 && discountValues.every((value) => value === discountValues[0])
@@ -973,7 +1159,7 @@ export default function NewTransactionScreen() {
 
     const participants: TransactionParticipant[] = summaries.flatMap((row) => {
       const itemParticipants = row.lineSummaries
-        .filter((line) => line.rawAmount > 0 || line.itemName !== 'Shared tab')
+        .filter((line) => line.rawAmount > 0 || line.itemName !== "Shared tab")
         .map((line) => ({
           memberId: row.memberId,
           item: line.itemName,
@@ -990,7 +1176,7 @@ export default function NewTransactionScreen() {
         ...itemParticipants,
         {
           memberId: row.memberId,
-          item: 'Shared split',
+          item: "Shared split",
           amount: row.splitShare,
           sharePercent: finalTotal > 0 ? Math.round((row.splitShare / finalTotal) * 100) : 0,
           shared: true,
@@ -1023,7 +1209,7 @@ export default function NewTransactionScreen() {
         lookup[member.id] = member;
         return lookup;
       }, {}),
-    [members]
+    [members],
   );
 
   const selectedMembers = useMemo(
@@ -1031,7 +1217,7 @@ export default function NewTransactionScreen() {
       selectedMemberIds
         .map((memberId) => selectedMembersById[memberId])
         .filter((member): member is Member => Boolean(member)),
-    [selectedMemberIds, selectedMembersById]
+    [selectedMemberIds, selectedMembersById],
   );
 
   const hasRequiredMemberAmounts =
@@ -1039,7 +1225,7 @@ export default function NewTransactionScreen() {
     orderMath.summaries.every(
       (row) =>
         ordersByMember[row.memberId]?.some((draft) => /\d/.test(draft.amountInput)) ||
-        (orderMath.hasRequestedTotal && row.shared && row.splitShare > 0)
+        (orderMath.hasRequestedTotal && row.shared && row.splitShare > 0),
     );
   const canSave = hasRequiredMemberAmounts && !orderMath.isRequestedTotalTooSmall;
 
@@ -1056,18 +1242,18 @@ export default function NewTransactionScreen() {
         : {
             ...orders,
             [memberId]: [createOrderDraft(discountInput)],
-          }
+          },
     );
     setSelectedMemberIds((current) =>
-      current.includes(memberId) ? current : [...current, memberId]
+      current.includes(memberId) ? current : [...current, memberId],
     );
   }
 
   function openNewMember() {
     router.push({
-      pathname: '/member/new',
+      pathname: "/member/new",
       params: {
-        returnTo: 'transaction',
+        returnTo: "transaction",
         groupId: selectedGroupId,
       },
     });
@@ -1084,10 +1270,74 @@ export default function NewTransactionScreen() {
     });
   }
 
+  function buildMenuItemDrafts(
+    drafts: MemberOrderDraft[],
+    selectedMenuItemIds: string[],
+  ): MemberOrderDraft[] {
+    const menuItemsById = new Map(menuItems.map((item) => [item.id, item]));
+    const existingDraftsByMenuItemId = new Map(
+      drafts.filter((draft) => draft.menuItemId).map((draft) => [draft.menuItemId, draft]),
+    );
+    const retainedNonMenuDrafts = drafts.filter(
+      (draft) => !draft.menuItemId && !isEmptyOrderDraft(draft),
+    );
+    const selectedMenuDrafts = uniqueMenuItemIds(selectedMenuItemIds)
+      .map((itemId) => {
+        const item = menuItemsById.get(itemId);
+
+        return item
+          ? createOrderDraftFromMenuItem(
+              item,
+              discountInput,
+              existingDraftsByMenuItemId.get(itemId),
+            )
+          : undefined;
+      })
+      .filter((draft): draft is MemberOrderDraft => Boolean(draft));
+    const nextDrafts = [...selectedMenuDrafts, ...retainedNonMenuDrafts];
+
+    return nextDrafts.length > 0 ? nextDrafts : [createOrderDraft(discountInput)];
+  }
+
+  function applyMemberMenuItemSelection(memberId: string, selectedMenuItemIds: string[]) {
+    setOrdersByMember((current) => {
+      const drafts = current[memberId] ?? [createOrderDraft(discountInput)];
+
+      return {
+        ...current,
+        [memberId]: buildMenuItemDrafts(drafts, selectedMenuItemIds),
+      };
+    });
+  }
+
+  function clearMemberMenuItems(memberId: string) {
+    applyMemberMenuItemSelection(memberId, []);
+  }
+
+  function toggleMemberMenuItem(memberId: string, item: MenuItem) {
+    setOrdersByMember((current) => {
+      const drafts = current[memberId] ?? [createOrderDraft(discountInput)];
+      const selectedMenuItemIds = uniqueMenuItemIds(
+        drafts.map((draft) => draft.menuItemId).filter(Boolean),
+      );
+      const nextSelectedMenuItemIds = selectedMenuItemIds.includes(item.id)
+        ? selectedMenuItemIds.filter((itemId) => itemId !== item.id)
+        : [...selectedMenuItemIds, item.id];
+
+      return {
+        ...current,
+        [memberId]: buildMenuItemDrafts(drafts, nextSelectedMenuItemIds),
+      };
+    });
+  }
+
   function addMemberOrder(memberId: string) {
     setOrdersByMember((current) => ({
       ...current,
-      [memberId]: [...(current[memberId] ?? [createOrderDraft(discountInput)]), createOrderDraft(discountInput)],
+      [memberId]: [
+        ...(current[memberId] ?? [createOrderDraft(discountInput)]),
+        createOrderDraft(discountInput),
+      ],
     }));
   }
 
@@ -1105,9 +1355,7 @@ export default function NewTransactionScreen() {
 
   function toggleSharedMember(memberId: string) {
     setSharedMemberIds((current) =>
-      current.includes(memberId)
-        ? current.filter((id) => id !== memberId)
-        : [...current, memberId]
+      current.includes(memberId) ? current.filter((id) => id !== memberId) : [...current, memberId],
     );
   }
 
@@ -1136,9 +1384,9 @@ export default function NewTransactionScreen() {
     setIsSubmitting(true);
 
     const transactionId = addTransaction({
-      title: selectedVenue?.name ?? 'Shared Tab',
+      title: selectedVenue?.name ?? "Shared Tab",
       amount: orderMath.finalTotal,
-      groupId: selectedGroupId === UNGROUPED_FILTER_ID ? '' : selectedGroupId,
+      groupId: selectedGroupId === UNGROUPED_FILTER_ID ? "" : selectedGroupId,
       venueId: selectedVenueId || undefined,
       memberIds: selectedMemberIds,
       note: note.trim() || undefined,
@@ -1152,17 +1400,13 @@ export default function NewTransactionScreen() {
     await showNewTransactionInterstitial();
 
     router.replace({
-      pathname: '/transaction/[id]',
+      pathname: "/transaction/[id]",
       params: { id: transactionId },
     });
   }
 
   return (
-    <OrdernowsScreen
-      keyboardAware
-      title={copy.title}
-      subtitle={copy.subtitle}
-      badge={copy.badge}>
+    <OrdernowsScreen keyboardAware title={copy.title} subtitle={copy.subtitle} badge={copy.badge}>
       <PaperCard className="mb-6 p-5">
         <View className="mb-5 flex-row items-start justify-between gap-4">
           <View className="flex-1">
@@ -1172,12 +1416,15 @@ export default function NewTransactionScreen() {
             <Text className="mt-2 text-h2 text-foreground uppercase">
               {selectedVenue?.name ?? copy.sharedTab}
             </Text>
-            <Text className="mt-1 text-body text-muted-foreground">
-              {selectedGroupLabel}
-            </Text>
+            <Text className="mt-1 text-body text-muted-foreground">{selectedGroupLabel}</Text>
           </View>
           <View className="h-12 w-12 items-center justify-center rounded-[18px] border-2 border-border bg-secondary">
-            <LucideIcon name="ReceiptText" className="text-foreground" size={21} strokeWidth={1.9} />
+            <LucideIcon
+              name="ReceiptText"
+              className="text-foreground"
+              size={21}
+              strokeWidth={1.9}
+            />
           </View>
         </View>
 
@@ -1210,11 +1457,12 @@ export default function NewTransactionScreen() {
             accessibilityLabel={copy.createGroup}
             onPress={() =>
               router.push({
-                pathname: '/group/manage',
-                params: { intent: 'create' },
+                pathname: "/group/manage",
+                params: { intent: "create" },
               })
             }
-            className="h-10 w-10 items-center justify-center rounded-full border-2 border-border bg-card active:opacity-80">
+            className="h-10 w-10 items-center justify-center rounded-full border-2 border-border bg-card active:opacity-80"
+          >
             <LucideIcon name="Plus" className="text-foreground" size={16} strokeWidth={2.2} />
           </Pressable>
         }
@@ -1238,15 +1486,13 @@ export default function NewTransactionScreen() {
       </ScrollView>
       {groups.length === 0 ? (
         <PaperCard className="mb-6 p-5">
-          <Text className="text-body text-muted-foreground">
-            {copy.groupRequired}
-          </Text>
+          <Text className="text-body text-muted-foreground">{copy.groupRequired}</Text>
           <View className="mt-4">
             <ActionPill
               label={copy.manageGroups}
               icon="UsersRound"
               tone="secondary"
-              onPress={() => router.push('/group/manage')}
+              onPress={() => router.push("/group/manage")}
             />
           </View>
         </PaperCard>
@@ -1260,7 +1506,7 @@ export default function NewTransactionScreen() {
               label={copy.noVenue}
               icon="CircleOff"
               active={!selectedVenueId}
-              onPress={() => setSelectedVenueId('')}
+              onPress={() => setSelectedVenueId("")}
             />
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-6">
@@ -1278,15 +1524,13 @@ export default function NewTransactionScreen() {
         </>
       ) : (
         <PaperCard className="mb-6 p-5">
-          <Text className="text-body text-muted-foreground">
-            {copy.noVenues}
-          </Text>
+          <Text className="text-body text-muted-foreground">{copy.noVenues}</Text>
           <View className="mt-4">
             <ActionPill
               label={copy.addVenue}
               icon="Store"
               tone="secondary"
-              onPress={() => router.push('/venue/new')}
+              onPress={() => router.push("/venue/new")}
             />
           </View>
         </PaperCard>
@@ -1300,7 +1544,8 @@ export default function NewTransactionScreen() {
             accessibilityRole="button"
             accessibilityLabel={copy.addMember}
             onPress={openNewMember}
-            className="h-10 w-10 items-center justify-center rounded-full border-2 border-border bg-card active:opacity-80">
+            className="h-10 w-10 items-center justify-center rounded-full border-2 border-border bg-card active:opacity-80"
+          >
             <LucideIcon name="UserPlus" className="text-foreground" size={16} strokeWidth={2.2} />
           </Pressable>
         }
@@ -1320,9 +1565,7 @@ export default function NewTransactionScreen() {
       ) : (
         <PaperCard className="mb-6 p-5">
           <Text className="text-body text-muted-foreground">
-            {selectedGroupId
-              ? copy.noGroupMembers
-              : copy.selectGroupPrompt}
+            {selectedGroupId ? copy.noGroupMembers : copy.selectGroupPrompt}
           </Text>
           <View className="mt-4">
             <ActionPill
@@ -1347,23 +1590,26 @@ export default function NewTransactionScreen() {
 
             return {
               draftId: draft.id,
-              itemName: draft.customItemName.trim() || selectedMenuItem?.name || 'Shared tab',
+              itemName: draft.customItemName.trim() || selectedMenuItem?.name || "Shared tab",
               rawAmount,
               discountPercent,
               discountAmount: rawAmount - discountedAmount,
               discountedAmount,
             };
           });
-          const fallbackRawAmount = fallbackLineSummaries.reduce((sum, line) => sum + line.rawAmount, 0);
+          const fallbackRawAmount = fallbackLineSummaries.reduce(
+            (sum, line) => sum + line.rawAmount,
+            0,
+          );
           const fallbackDiscountedAmount = fallbackLineSummaries.reduce(
             (sum, line) => sum + line.discountedAmount,
-            0
+            0,
           );
           const summary =
             orderMath.summaries.find((entry) => entry.memberId === member.id) ??
             ({
               memberId: member.id,
-              itemName: fallbackLineSummaries.map((line) => line.itemName).join(', '),
+              itemName: fallbackLineSummaries.map((line) => line.itemName).join(", "),
               lineSummaries: fallbackLineSummaries,
               rawAmount: fallbackRawAmount,
               discountAmount: fallbackRawAmount - fallbackDiscountedAmount,
@@ -1383,23 +1629,11 @@ export default function NewTransactionScreen() {
               hasRequestedTotal={orderMath.hasRequestedTotal}
               hasSelectedVenue={Boolean(selectedVenue)}
               menuItems={menuItems}
-              onSelectMenuItem={(draftId, item) =>
-                updateOrder(
-                  member.id,
-                  draftId,
-                  item
-                    ? {
-                        menuItemId: item.id,
-                        customItemName: item.name,
-                        amountInput: formatInputAmount(item.price, { allowZero: true }),
-                      }
-                    : {
-                        menuItemId: '',
-                        customItemName: '',
-                        amountInput: '',
-                      }
-                )
+              onApplyMenuItemSelection={(itemIds) =>
+                applyMemberMenuItemSelection(member.id, itemIds)
               }
+              onClearMenuItems={() => clearMemberMenuItems(member.id)}
+              onToggleMenuItem={(item) => toggleMemberMenuItem(member.id, item)}
               onUpdate={(draftId, patch) => updateOrder(member.id, draftId, patch)}
               onAddOrder={() => addMemberOrder(member.id)}
               onRemoveOrder={(draftId) => removeMemberOrder(member.id, draftId)}
@@ -1411,16 +1645,19 @@ export default function NewTransactionScreen() {
         })
       ) : (
         <PaperCard className="mb-6 p-5">
-          <Text className="text-body text-muted-foreground">
-            {copy.noOrders}
-          </Text>
+          <Text className="text-body text-muted-foreground">{copy.noOrders}</Text>
         </PaperCard>
       )}
 
       <PaperCard className="mb-6 p-5">
         <View className="mb-2">
           <View className="mb-2 flex-row items-center gap-2">
-            <LucideIcon name="Percent" className="text-muted-foreground" size={15} strokeWidth={2} />
+            <LucideIcon
+              name="Percent"
+              className="text-muted-foreground"
+              size={15}
+              strokeWidth={2}
+            />
             <Text className="text-caption uppercase tracking-[1.7px] text-muted-foreground">
               {copy.applyAllDiscount}
             </Text>
@@ -1437,11 +1674,14 @@ export default function NewTransactionScreen() {
                 className="h-auto min-h-[24px] border-0 bg-transparent px-0 py-0 text-body text-foreground native:text-base"
               />
             </View>
-            <ActionPill label={copy.apply} icon="Percent" tone="secondary" onPress={applyGlobalDiscount} />
+            <ActionPill
+              label={copy.apply}
+              icon="Percent"
+              tone="secondary"
+              onPress={applyGlobalDiscount}
+            />
           </View>
-          <Text className="mt-2 text-caption text-muted-foreground">
-            {copy.discountHint}
-          </Text>
+          <Text className="mt-2 text-caption text-muted-foreground">{copy.discountHint}</Text>
         </View>
       </PaperCard>
 
@@ -1491,7 +1731,7 @@ export default function NewTransactionScreen() {
           icon="CircleCheck"
           onPress={handleSubmit}
           disabled={isSubmitting}
-          className={cn((!canSave || isSubmitting) && 'opacity-50')}
+          className={cn((!canSave || isSubmitting) && "opacity-50")}
         />
       </View>
     </OrdernowsScreen>
