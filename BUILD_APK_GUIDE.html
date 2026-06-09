@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Huong dan build APK - Thu Chi</title>
+    <style>
+      :root {
+        --ink: #17221c;
+        --muted: #607067;
+        --paper: #f6f3eb;
+        --panel: #fffdf8;
+        --line: #d8d4c8;
+        --green: #176b52;
+        --green-dark: #0d4938;
+        --orange: #df6b2f;
+        --code: #16241e;
+        --code-ink: #e8f4ec;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background:
+          linear-gradient(90deg, rgba(23, 107, 82, 0.05) 1px, transparent 1px),
+          linear-gradient(rgba(23, 107, 82, 0.05) 1px, transparent 1px),
+          var(--paper);
+        background-size: 24px 24px;
+        color: var(--ink);
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1.62;
+      }
+
+      a {
+        color: var(--green-dark);
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 24px auto 64px;
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 24px;
+      }
+
+      .toc {
+        position: sticky;
+        top: 20px;
+        align-self: start;
+        border: 1px solid var(--line);
+        background: rgba(255, 253, 248, 0.94);
+        padding: 18px;
+        box-shadow: 5px 5px 0 rgba(23, 107, 82, 0.14);
+      }
+
+      .toc strong,
+      .label {
+        color: var(--green-dark);
+        font-family: "Trebuchet MS", sans-serif;
+        font-size: 12px;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .toc a {
+        display: block;
+        padding: 7px 0;
+        border-bottom: 1px dotted var(--line);
+        color: var(--ink);
+        font-size: 14px;
+        text-decoration: none;
+      }
+
+      .toc a:hover {
+        color: var(--orange);
+      }
+
+      main {
+        min-width: 0;
+      }
+
+      header,
+      section {
+        border: 1px solid var(--line);
+        background: rgba(255, 253, 248, 0.96);
+        box-shadow: 7px 7px 0 rgba(23, 107, 82, 0.12);
+      }
+
+      header {
+        padding: clamp(28px, 6vw, 64px);
+        border-top: 8px solid var(--green);
+      }
+
+      header h1 {
+        max-width: 760px;
+        margin: 8px 0 12px;
+        font-size: clamp(40px, 7vw, 76px);
+        font-weight: normal;
+        letter-spacing: -0.06em;
+        line-height: 0.98;
+      }
+
+      header p {
+        max-width: 700px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .badge {
+        display: inline-block;
+        margin-top: 12px;
+        border: 1px solid var(--orange);
+        padding: 6px 10px;
+        color: #9f461c;
+        font-family: "Trebuchet MS", sans-serif;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      section {
+        margin-top: 24px;
+        padding: clamp(20px, 4vw, 40px);
+      }
+
+      h2 {
+        margin: 0 0 14px;
+        color: var(--green-dark);
+        font-size: 31px;
+        font-weight: normal;
+        letter-spacing: -0.035em;
+      }
+
+      h3 {
+        margin-top: 26px;
+        color: var(--green-dark);
+        font-family: "Trebuchet MS", sans-serif;
+        font-size: 17px;
+      }
+
+      .note,
+      .warning,
+      .success {
+        margin: 16px 0;
+        border-left: 4px solid var(--green);
+        background: #edf5ef;
+        padding: 12px 16px;
+      }
+
+      .warning {
+        border-color: var(--orange);
+        background: #fff2e7;
+      }
+
+      .success {
+        border-color: #2b8a63;
+        background: #e5f6ed;
+      }
+
+      pre {
+        position: relative;
+        overflow-x: auto;
+        border-left: 5px solid var(--orange);
+        background: var(--code);
+        padding: 16px 18px;
+        color: var(--code-ink);
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      code {
+        font-family: Consolas, "Courier New", monospace;
+      }
+
+      li {
+        margin: 8px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--green-dark);
+        font-family: "Trebuchet MS", sans-serif;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 860px) {
+        .shell {
+          display: block;
+        }
+
+        .toc {
+          position: static;
+          margin-bottom: 20px;
+        }
+      }
+
+      @media print {
+        body {
+          background: white;
+        }
+
+        .shell {
+          display: block;
+          width: 100%;
+          margin: 0;
+        }
+
+        .toc {
+          display: none;
+        }
+
+        header,
+        section {
+          break-inside: avoid;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <nav class="toc">
+        <strong>Muc luc</strong>
+        <a href="#overview">Tong quan</a>
+        <a href="#first-build">Build lan dau</a>
+        <a href="#supabase">Cau hinh Supabase</a>
+        <a href="#yarn-fix">Sua loi Yarn tren EAS</a>
+        <a href="#build">Tao va tai APK</a>
+        <a href="#rebuild">Build APK moi ve sau</a>
+        <a href="#troubleshoot">Xu ly loi thuong gap</a>
+      </nav>
+
+      <main>
+        <header id="overview">
+          <span class="label">Expo Android / EAS Cloud Build</span>
+          <h1>Build APK cho ung dung Thu Chi</h1>
+          <p>
+            Tai lieu thao tac tren Windows de tao file <code>.apk</code> cai truc
+            tiep len dien thoai Android. Cach nay dung EAS cloud build, khong can
+            cai Android Studio.
+          </p>
+          <span class="badge">Khong chia se Supabase key cho nguoi khac</span>
+        </header>
+
+        <section id="first-build">
+          <h2>1. Chuan bi va build lan dau</h2>
+          <p>
+            Mo Command Prompt trong thu muc source. Thu muc dung phai co cac file
+            <code>package.json</code> va <code>app.config.js</code>.
+          </p>
+
+          <h3>Kiem tra Node.js, npm va Corepack</h3>
+          <pre>node -v
+npm -v
+corepack --version
+corepack enable
+corepack install --global yarn@4.10.3</pre>
+
+          <h3>Cai thu vien va kiem tra source</h3>
+          <pre>yarn --version
+yarn install
+yarn typecheck
+npx expo-doctor@latest</pre>
+
+          <div class="note">
+            <strong>Ket qua mong doi:</strong> Yarn la <code>4.10.3</code> va
+            Expo Doctor bao <code>18/18 checks passed</code>.
+          </div>
+
+          <h3>Sua loi TypeScript neu gap lai</h3>
+          <p>
+            Neu <code>lib/supabase.ts</code> bao
+            <code>cachedClient is possibly undefined</code>, doi dieu kien thanh:
+          </p>
+          <pre>if (
+  cachedClient &amp;&amp;
+  cachedClient.url === supabaseUrl &amp;&amp;
+  cachedClient.publishableKey === supabasePublishableKey
+) {</pre>
+
+          <h3>Dang nhap va lien ket EAS</h3>
+          <pre>npm install --global eas-cli
+eas login
+eas whoami
+eas build:configure</pre>
+
+          <p>
+            Khi EAS hoi platform, chon <code>Android</code>. EAS co the tu tao
+            Git cuc bo. Day khong phai la GitHub va khong tai source cong khai.
+          </p>
+
+          <h3>Cau hinh tao APK thay vi AAB</h3>
+          <p>Trong <code>eas.json</code>, bao dam profile <code>preview</code> co dang:</p>
+          <pre>{
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "environment": "preview",
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}</pre>
+
+          <div class="warning">
+            <strong>Quan trong:</strong> <code>buildType: "apk"</code> tao file
+            cai truc tiep. Profile production mac dinh thuong tao
+            <code>.aab</code> de dang Play Store.
+          </div>
+        </section>
+
+        <section id="supabase">
+          <h2>2. Cau hinh Supabase tren EAS</h2>
+          <p>
+            Supabase luu tai khoan va du lieu thu chi. Source tai ve khong kem
+            <code>.env</code>. Lay Project URL va publishable key trong Supabase
+            Dashboard, cua so <code>Connect</code>. Khong dung
+            <code>service_role</code> key.
+          </p>
+
+          <pre>eas env:create --name EXPO_PUBLIC_SUPABASE_URL --value "DAN_URL_VAO_DAY" --environment preview --visibility plaintext
+
+eas env:create --name EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY --value "DAN_KEY_VAO_DAY" --environment preview --visibility plaintext
+
+eas env:list --environment preview</pre>
+
+          <div class="note">
+            File <code>.env.local</code> do Supabase dua ra cho Next.js chi dung
+            de lay gia tri. Ung dung Expo can dung ten bien bat dau bang
+            <code>EXPO_PUBLIC_</code> nhu cac lenh tren.
+          </div>
+        </section>
+
+        <section id="yarn-fix">
+          <h2>3. Sua loi Yarn runtime tren EAS</h2>
+          <p>
+            Neu log EAS bao khong tim thay
+            <code>.yarn/releases/yarn-4.10.3.cjs</code>, file Yarn dang bi loai
+            khoi goi upload.
+          </p>
+
+          <h3>Cap nhat .gitignore</h3>
+          <p>Trong <code>.gitignore</code>, bao dam co cac dong:</p>
+          <pre>.yarn/*
+!.yarn/releases/
+!.yarn/releases/**
+!.yarn/patches/
+!.yarn/patches/**</pre>
+
+          <h3>Tao .easignore</h3>
+          <pre>copy .gitignore .easignore</pre>
+          <p>
+            Mo <code>.easignore</code> va xoa dong
+            <code>.yarn/*</code>. Sau do luu file va chay:
+          </p>
+          <pre>git add .easignore
+git commit -m "Include Yarn runtime in EAS archive"</pre>
+        </section>
+
+        <section id="build">
+          <h2>4. Tao va tai APK</h2>
+          <pre>eas build --platform android --profile preview</pre>
+
+          <p>
+            Lan dau build, neu EAS hoi tao Android Keystore thi chon
+            <code>Y</code>. EAS se luu keystore tren server va tai su dung cho
+            cac ban build tiep theo.
+          </p>
+
+          <ol>
+            <li>Cho den khi Terminal bao build thanh cong.</li>
+            <li>Mo link EAS duoc in trong Terminal.</li>
+            <li>Bam <code>Download build</code> de tai file <code>.apk</code>.</li>
+            <li>Gui APK sang dien thoai va mo file de cai dat.</li>
+            <li>
+              Neu Android hoi quyen, cho phep cai ung dung tu trinh duyet hoac
+              trinh quan ly file.
+            </li>
+          </ol>
+        </section>
+
+        <section id="rebuild">
+          <h2>5. Build APK moi ve sau</h2>
+          <p>
+            Sau khi sua source, khong can lap lai cac buoc cai cong cu, tao
+            keystore hay cau hinh Supabase. Chi can mo Terminal trong thu muc
+            source va chay:
+          </p>
+          <pre>yarn typecheck
+npx expo-doctor@latest
+git add .
+git commit -m "Update app"
+eas build --platform android --profile preview</pre>
+
+          <div class="success">
+            Neu chi muon tao lai APK tu source hien tai ma khong co thay doi,
+            chay rieng lenh <code>eas build --platform android --profile preview</code>.
+          </div>
+        </section>
+
+        <section id="troubleshoot">
+          <h2>6. Xu ly loi thuong gap</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Hien tuong</th>
+                <th>Cach xu ly</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Build ra <code>.aab</code></td>
+                <td>
+                  Kiem tra <code>android.buildType</code> la <code>"apk"</code>
+                  va dung <code>--profile preview</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>Khong tim thay Yarn <code>4.10.3</code></td>
+                <td>
+                  Kiem tra <code>.easignore</code> va bao dam da xoa dong
+                  <code>.yarn/*</code>.
+                </td>
+              </tr>
+              <tr>
+                <td><code>INSTALL_FAILED_UPDATE_INCOMPATIBLE</code></td>
+                <td>
+                  Go APK cu khoi dien thoai, sau do cai APK moi. Hai APK co the
+                  duoc ky bang keystore khac nhau.
+                </td>
+              </tr>
+              <tr>
+                <td>Dang nhap hoac luu du lieu khong hoat dong</td>
+                <td>
+                  Chay <code>eas env:list --environment preview</code> va kiem
+                  tra hai bien Supabase.
+                </td>
+              </tr>
+              <tr>
+                <td>Web khong co nut quet hoa don</td>
+                <td>
+                  Day la dung thiet ke. OCR camera chi hien thi tren APK Android
+                  hoac ban iOS native.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Tai lieu chinh thuc</h3>
+          <ul>
+            <li><a href="https://docs.expo.dev/build-reference/apk/">Expo: Build APKs for Android Emulators and devices</a></li>
+            <li><a href="https://docs.expo.dev/build/setup/">Expo: Create your first build</a></li>
+            <li><a href="https://docs.expo.dev/eas/environment-variables/">Expo: Environment variables in EAS</a></li>
+            <li><a href="https://yarnpkg.com/corepack">Yarn: Corepack</a></li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
