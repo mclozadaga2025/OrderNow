@@ -14,9 +14,9 @@ const VI_STORAGE_STATUS: Record<string, string> = {
   'Group and transaction history deleted from local JSON.':
     'Đã xóa nhóm, thành viên và lịch sử giao dịch liên quan.',
   'Member saved to local JSON.': 'Đã lưu thành viên vào JSON cục bộ.',
-  'Menu item saved to local JSON.': 'Đã lưu món vào JSON cục bộ.',
-  'Menu item updated in local JSON.': 'Đã cập nhật món trong JSON cục bộ.',
-  'Menu item deleted from local JSON.': 'Đã xóa món khỏi JSON cục bộ.',
+  'Menu item saved to local JSON.': 'Đã lưu mục chi phí vào JSON cục bộ.',
+  'Menu item updated in local JSON.': 'Đã cập nhật mục chi phí trong JSON cục bộ.',
+  'Menu item deleted from local JSON.': 'Đã xóa mục chi phí khỏi JSON cục bộ.',
   'Venue saved to local JSON.': 'Đã lưu địa điểm vào JSON cục bộ.',
   'Top-up saved to local JSON.': 'Đã lưu khoản nạp vào JSON cục bộ.',
   'Transfer saved to local JSON.': 'Đã lưu giao dịch trao đổi vào JSON cục bộ.',

@@ -53,6 +53,8 @@ export interface TransactionParticipant {
   item: string;
   amount: number;
   sharePercent: number;
+  rawAmount?: number;
+  discountAmount?: number;
   shared?: boolean;
 }
 
@@ -198,7 +200,7 @@ export function getMenuCategoryIcon(category: MenuCategory): IconName {
     case 'Food':
       return 'UtensilsCrossed';
     case 'Dessert':
-      return 'Croissant';
+      return 'ReceiptText';
     default:
       return 'Store';
   }

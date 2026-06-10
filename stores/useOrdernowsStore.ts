@@ -139,9 +139,29 @@ function splitParticipants(memberIds: string[], amount: number): TransactionPart
       item: 'Shared tab',
       amount: shareAmount,
       sharePercent,
+      rawAmount: shareAmount,
+      discountAmount: 0,
       shared: true,
     };
   });
+}
+
+function getVenueIcon(name: string): Venue['icon'] {
+  const normalizedName = name.toLowerCase();
+
+  if (/(cafe|coffee|cà phê|ca phe)/.test(normalizedName)) {
+    return 'Coffee';
+  }
+
+  if (/(quán ăn|quan an|nhà hàng|nha hang|restaurant|food|ăn uống|an uong)/.test(normalizedName)) {
+    return 'UtensilsCrossed';
+  }
+
+  if (/(sân|san|cầu lông|cau long|bóng|bong|football|badminton|sport|thể thao|the thao)/.test(normalizedName)) {
+    return 'Trophy';
+  }
+
+  return 'MapPin';
 }
 
 function applyTransactionToMemberBalances(
@@ -567,7 +587,7 @@ export const useOrdernowsStore = create<OrdernowsState>((set, get) => {
         name: input.name,
         address: input.address,
         openUntil: input.openUntil || '10 PM',
-        icon: input.name.toLowerCase().includes('cafe') ? 'Coffee' : 'Store',
+        icon: getVenueIcon(input.name),
         menuItems: [],
       };
 

@@ -24,15 +24,15 @@ const VI_ORDERNOWS_TEXT: Record<string, string> = {
 
 const MENU_CATEGORY_LABELS: Record<AppLanguage, Record<MenuCategory, string>> = {
   en: {
-    Drinks: 'Drinks',
-    Food: 'Food',
-    Dessert: 'Dessert',
+    Drinks: 'Drink',
+    Food: 'Food / Service',
+    Dessert: 'Rental / Extra',
     Other: 'Other',
   },
   vi: {
     Drinks: 'Đồ uống',
-    Food: 'Đồ ăn',
-    Dessert: 'Tráng miệng',
+    Food: 'Ăn uống / Dịch vụ',
+    Dessert: 'Thuê / Phụ phí',
     Other: 'Khác',
   },
 };

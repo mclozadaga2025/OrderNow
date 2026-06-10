@@ -15,7 +15,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta name="application-name" content="GomBill" />
         <meta
           name="description"
-          content="GomBill helps groups record shared bills, manage members and venues, track wallet balances, and review every transaction in one place."
+          content="GomBill helps groups record shared bills, manage members and places, track wallet balances, and review every transaction in one place."
         />
 
         {/*

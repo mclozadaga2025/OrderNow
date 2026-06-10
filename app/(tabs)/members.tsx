@@ -19,7 +19,7 @@ import { useOrdernowsStore } from '@/stores/useOrdernowsStore';
 const MEMBERS_COPY = {
   en: {
     title: 'Members',
-    subtitle: 'Recharge wallets, monitor balances, and sort people into the right order group.',
+    subtitle: 'Recharge wallets, monitor balances, and sort people into the right spending group.',
     badge: (memberCount: number, groupCount: number) => `${memberCount} MEMBERS / ${groupCount} GROUPS`,
     totalBalance: 'Total Balance',
     totalBalanceHint: 'Wallets matching the current group filter',
@@ -38,7 +38,7 @@ const MEMBERS_COPY = {
   },
   vi: {
     title: 'Thành viên',
-    subtitle: 'Nạp ví, theo dõi số dư và sắp xếp mọi người vào đúng nhóm đặt món.',
+    subtitle: 'Nạp ví, theo dõi số dư và sắp xếp mọi người vào đúng nhóm chi tiêu.',
     badge: (memberCount: number, groupCount: number) => `${memberCount} THÀNH VIÊN / ${groupCount} NHÓM`,
     totalBalance: 'Tổng số dư',
     totalBalanceHint: 'Tổng số dư ví theo bộ lọc nhóm hiện tại',
@@ -84,24 +84,7 @@ export default function MembersScreen() {
       subtitle={copy.subtitle}
       badge={copy.badge(members.length, groups.length)}
       headerAction={<LanguageToggle />}>
-      <View className="mb-4">
-        <Text className="text-caption uppercase tracking-[1.8px] text-muted-foreground">
-          {copy.memberControls}
-        </Text>
-        <View className="mt-1 flex-row items-center justify-between gap-3">
-          <Text className="flex-1 text-h3 text-foreground uppercase">{copy.peopleAndGrouping}</Text>
-          <ActionPill
-            label={copy.addMember}
-            icon="UserPlus"
-            onPress={() => router.push('/member/new')}
-          />
-        </View>
-        <Text className="mt-1 text-body text-muted-foreground">
-          {copy.controlsDescription}
-        </Text>
-      </View>
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-3">
         <FilterChip
           label={copy.allGroups}
           icon="UsersRound"
@@ -144,6 +127,24 @@ export default function MembersScreen() {
           className="flex-1 items-center justify-center rounded-[22px] border-2 border-primary bg-primary px-4 py-3 active:opacity-80">
           <LucideIcon name="Plus" className="text-primary-foreground" size={18} strokeWidth={2.4} />
         </Pressable>
+      </View>
+
+      <View className="mb-6">
+        <Text className="text-caption uppercase tracking-[1.8px] text-muted-foreground">
+          {copy.memberControls}
+        </Text>
+        <View className="mt-1 flex-row items-center justify-between gap-3">
+          <Text className="flex-1 text-h3 text-foreground uppercase">{copy.peopleAndGrouping}</Text>
+          <ActionPill
+            label={copy.addMember}
+            icon="UserPlus"
+            onPress={() => router.push('/member/new')}
+          />
+        </View>
+
+        <Text className="mt-3 text-body text-muted-foreground">
+          {copy.controlsDescription}
+        </Text>
       </View>
 
       <View className="mb-6 flex-row gap-3">

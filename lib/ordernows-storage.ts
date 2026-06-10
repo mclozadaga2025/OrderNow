@@ -168,6 +168,14 @@ function sanitizeParticipants(value: unknown) {
       item: readString(participant.item, 'Shared tab'),
       amount: Math.max(readNumber(participant.amount), 0),
       sharePercent: Math.max(readNumber(participant.sharePercent), 0),
+      rawAmount:
+        typeof participant.rawAmount === 'number'
+          ? Math.max(readNumber(participant.rawAmount), 0)
+          : undefined,
+      discountAmount:
+        typeof participant.discountAmount === 'number'
+          ? Math.max(readNumber(participant.discountAmount), 0)
+          : undefined,
       shared: typeof participant.shared === 'boolean' ? participant.shared : undefined,
     });
 

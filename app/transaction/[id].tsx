@@ -15,6 +15,7 @@ import {
   formatDateAndTime,
   formatSignedVnd,
   formatVnd,
+  type TransactionParticipant,
 } from '@/lib/ordernows';
 import { useLanguage } from '@/lib/useLanguage';
 import { cn } from '@/lib/utils';
@@ -60,10 +61,14 @@ const TRANSACTION_DETAIL_COPY = {
     applied: (percent: number) => `${percent}% applied`,
     noDiscount: 'No discount on file',
     memberBreakdown: 'Member Breakdown',
-    peopleAndSplit: 'People and split',
+    peopleAndSplit: 'People and details',
     member: 'Member',
     members: 'Members',
-    share: 'Share',
+    orderItems: 'Items',
+    foodMoney: 'Own items',
+    sharedMoney: 'Shared amount',
+    discountMoney: 'Discount',
+    totalMoney: 'Total',
     singleWallet: 'This credit transaction applies directly to a single wallet.',
     summary: 'Summary',
     finalNumbers: 'Final numbers',
@@ -104,10 +109,14 @@ const TRANSACTION_DETAIL_COPY = {
     applied: (percent: number) => `Đã áp dụng ${percent}%`,
     noDiscount: 'Không có giảm giá',
     memberBreakdown: 'Chi tiết thành viên',
-    peopleAndSplit: 'Người tham gia và phần chia',
+    peopleAndSplit: 'Người tham gia và chi tiết',
     member: 'Thành viên',
     members: 'Thành viên',
-    share: 'Tỷ lệ',
+    orderItems: 'Mục',
+    foodMoney: 'Chi phí riêng',
+    sharedMoney: 'Tiền share',
+    discountMoney: 'Tiền discount',
+    totalMoney: 'Tổng tiền',
     singleWallet: 'Khoản tiền vào này được cộng trực tiếp vào một ví.',
     summary: 'Tóm tắt',
     finalNumbers: 'Số liệu cuối cùng',
@@ -146,6 +155,72 @@ function SummaryRow({
   );
 }
 
+function DetailAmountRow({
+  label,
+  value,
+  tone = 'default',
+  strong = false,
+}: {
+  label: string;
+  value: string;
+  tone?: 'default' | 'destructive' | 'success';
+  strong?: boolean;
+}) {
+  const toneClass = {
+    default: 'text-foreground',
+    destructive: 'text-destructive',
+    success: 'text-success',
+  }[tone];
+
+  return (
+    <View className="flex-row items-center justify-between gap-3 py-1.5">
+      <Text
+        className={cn(
+          'text-caption uppercase tracking-[1.2px]',
+          strong ? 'text-foreground' : 'text-muted-foreground'
+        )}>
+        {label}
+      </Text>
+      <Text className={cn(strong ? 'text-h5' : 'text-button', 'uppercase', toneClass)}>{value}</Text>
+    </View>
+  );
+}
+
+function getParticipantRawAmount(participant: TransactionParticipant, discountPercent?: number) {
+  if (participant.rawAmount !== undefined) {
+    return participant.rawAmount;
+  }
+
+  if (participant.shared) {
+    return participant.amount;
+  }
+
+  if (participant.discountAmount !== undefined) {
+    return participant.amount + participant.discountAmount;
+  }
+
+  if (discountPercent !== undefined && discountPercent > 0 && discountPercent < 100) {
+    return Math.max(
+      Math.round(participant.amount / (1 - discountPercent / 100)),
+      participant.amount
+    );
+  }
+
+  return participant.amount;
+}
+
+function getParticipantDiscountAmount(participant: TransactionParticipant, discountPercent?: number) {
+  if (participant.shared) {
+    return 0;
+  }
+
+  if (participant.discountAmount !== undefined) {
+    return participant.discountAmount;
+  }
+
+  return Math.max(getParticipantRawAmount(participant, discountPercent) - participant.amount, 0);
+}
+
 export default function TransactionDetailScreen() {
   const { language, locale } = useLanguage();
   const copy = TRANSACTION_DETAIL_COPY[language];
@@ -165,6 +240,53 @@ export default function TransactionDetailScreen() {
       }, {}),
     [members]
   );
+  const memberBreakdowns = useMemo(() => {
+    type MemberBreakdownDraft = {
+      memberId: string;
+      member: (typeof members)[number] | undefined;
+      itemLines: TransactionParticipant[];
+      sharedLines: TransactionParticipant[];
+      foodAmount: number;
+      sharedAmount: number;
+      discountAmount: number;
+    };
+
+    if (!transaction?.participants?.length) {
+      return [];
+    }
+
+    const breakdowns = new Map<string, MemberBreakdownDraft>();
+
+    transaction.participants.forEach((participant) => {
+      const current =
+        breakdowns.get(participant.memberId) ??
+        {
+          memberId: participant.memberId,
+          member: memberLookup[participant.memberId],
+          itemLines: [],
+          sharedLines: [],
+          foodAmount: 0,
+          sharedAmount: 0,
+          discountAmount: 0,
+        };
+
+      if (participant.shared) {
+        current.sharedLines.push(participant);
+        current.sharedAmount += participant.amount;
+      } else {
+        current.itemLines.push(participant);
+        current.foodAmount += getParticipantRawAmount(participant, transaction.discountPercent);
+        current.discountAmount += getParticipantDiscountAmount(participant, transaction.discountPercent);
+      }
+
+      breakdowns.set(participant.memberId, current);
+    });
+
+    return Array.from(breakdowns.values()).map((breakdown) => ({
+      ...breakdown,
+      totalAmount: breakdown.foodAmount - breakdown.discountAmount + breakdown.sharedAmount,
+    }));
+  }, [memberLookup, transaction?.discountPercent, transaction?.participants]);
 
   if (!transaction) {
     return (
@@ -263,12 +385,26 @@ export default function TransactionDetailScreen() {
     }
 
     const participantLines =
-      currentTransaction.participants
-        ?.map((participant) => {
-          const member = memberLookup[participant.memberId];
-          return `- ${member?.name ?? copy.unknownMember}: ${localizeOrdernowsText(participant.item, language)}, ${formatVnd(participant.amount)} (${participant.sharePercent}%)`;
-        })
-        .join('\n') || copy.noBreakdown;
+      memberBreakdowns.length > 0
+        ? memberBreakdowns.map((breakdown) => {
+            const detailItems = [...breakdown.itemLines, ...breakdown.sharedLines]
+              .map((participant) => localizeOrdernowsText(participant.item, language))
+              .join(', ');
+            const rows = [
+              `- ${breakdown.member?.name ?? copy.unknownMember}`,
+              detailItems ? `  ${copy.orderItems}: ${detailItems}` : undefined,
+              `  ${copy.foodMoney}: ${formatVnd(breakdown.foodAmount)}`,
+              `  ${copy.sharedMoney}: ${formatVnd(breakdown.sharedAmount)}`,
+              `  ${copy.discountMoney}: ${
+                breakdown.discountAmount ? formatSignedVnd(-breakdown.discountAmount) : '0đ'
+              }`,
+              `  ${copy.totalMoney}: ${formatVnd(breakdown.totalAmount)}`,
+            ];
+
+            return rows.filter(Boolean).join('\n');
+          })
+          .join('\n')
+        : copy.noBreakdown;
 
     const message = [
       localizeOrdernowsText(currentTransaction.title, language),
@@ -432,23 +568,60 @@ export default function TransactionDetailScreen() {
             }
           />
 
-          {transaction.participants?.map((participant, index) => {
-            const member = memberLookup[participant.memberId];
+          {memberBreakdowns.map((breakdown) => {
+            const member = breakdown.member;
+            const detailItems = [...breakdown.itemLines, ...breakdown.sharedLines]
+              .map((participant) => localizeOrdernowsText(participant.item, language))
+              .join(', ');
 
             return (
-              <PaperCard key={`${transaction.id}-${participant.memberId}-${index}`} className="mb-3 p-4">
+              <PaperCard key={`${transaction.id}-${breakdown.memberId}`} className="mb-3 p-4">
                 <View className="flex-row items-start gap-4">
                   {member ? <AvatarBadge avatar={member.avatar} size="md" /> : null}
 
-                  <View className="flex-1">
-                    <Text className="text-h4 text-foreground uppercase">{member?.name || copy.unknownMember}</Text>
-                    <Text className="mt-1 text-body text-muted-foreground">{localizeOrdernowsText(participant.item, language)}</Text>
-                    <Text className="mt-2 text-caption uppercase tracking-[1.2px] text-muted-foreground">
-                      {copy.share}: {participant.sharePercent}%
-                    </Text>
-                  </View>
+                  <View className="min-w-0 flex-1">
+                    <View className="flex-row items-start justify-between gap-3">
+                      <View className="min-w-0 flex-1">
+                        <Text className="text-h4 text-foreground uppercase">
+                          {member?.name || copy.unknownMember}
+                        </Text>
+                        {detailItems ? (
+                          <Text className="mt-1 text-body text-muted-foreground" numberOfLines={2}>
+                            {copy.orderItems}: {detailItems}
+                          </Text>
+                        ) : null}
+                      </View>
 
-                  <Text className="text-h5 text-foreground uppercase">{formatVnd(participant.amount)}</Text>
+                      <Text className="shrink-0 text-h5 text-foreground uppercase">
+                        {formatVnd(breakdown.totalAmount)}
+                      </Text>
+                    </View>
+
+                    <View className="mt-4 border-t border-border pt-3">
+                      <DetailAmountRow
+                        label={copy.foodMoney}
+                        value={formatVnd(breakdown.foodAmount)}
+                      />
+                      <DetailAmountRow
+                        label={copy.sharedMoney}
+                        value={formatVnd(breakdown.sharedAmount)}
+                      />
+                      <DetailAmountRow
+                        label={copy.discountMoney}
+                        value={
+                          breakdown.discountAmount
+                            ? formatSignedVnd(-breakdown.discountAmount)
+                            : '0đ'
+                        }
+                        tone={breakdown.discountAmount ? 'destructive' : 'default'}
+                      />
+                      <DetailAmountRow
+                        label={copy.totalMoney}
+                        value={formatVnd(breakdown.totalAmount)}
+                        strong
+                      />
+                    </View>
+                  </View>
                 </View>
               </PaperCard>
             );
