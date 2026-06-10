@@ -32,6 +32,7 @@ const MEMBER_DETAIL_COPY = {
     joined: 'Joined the running ledger and visible only to this account.',
     unclassified: 'Unclassified',
     topUpWallet: 'Top Up Wallet',
+    transferWallet: 'Transfer',
     roster: 'Roster',
     currentBalance: 'Current Balance',
     balanceHint: 'Live wallet value after mock actions',
@@ -39,7 +40,8 @@ const MEMBER_DETAIL_COPY = {
     historyHint: 'Most recent transactions capped at thirty',
     recentHistory: 'Recent History',
     ledgerTouchpoints: 'Ledger touchpoints',
-    historyDescription: "Debit rows show the member's tab participation, credit rows show wallet funding.",
+    historyDescription:
+      "Debit rows show tab participation, credit rows show funding, and transfer rows show wallet movement.",
     emptyTitle: 'No recent activity',
     emptyDescription: 'Create a transaction or top up this wallet to populate the member timeline.',
   },
@@ -58,6 +60,7 @@ const MEMBER_DETAIL_COPY = {
     joined: 'Đã tham gia sổ chi tiêu và chỉ hiển thị trong tài khoản này.',
     unclassified: 'Chưa phân nhóm',
     topUpWallet: 'Nạp tiền vào ví',
+    transferWallet: 'Trao đổi',
     roster: 'Danh sách',
     currentBalance: 'Số dư hiện tại',
     balanceHint: 'Số dư ví sau các thao tác',
@@ -65,7 +68,7 @@ const MEMBER_DETAIL_COPY = {
     historyHint: 'Tối đa ba mươi giao dịch gần nhất',
     recentHistory: 'Lịch sử gần đây',
     ledgerTouchpoints: 'Giao dịch trong sổ',
-    historyDescription: 'Khoản chi cho biết phần tham gia, khoản nạp cho biết tiền vào ví.',
+    historyDescription: 'Khoản chi, khoản nạp và giao dịch trao đổi ví đều được ghi tại đây.',
     emptyTitle: 'Chưa có hoạt động',
     emptyDescription: 'Tạo giao dịch hoặc nạp tiền để hiển thị lịch sử của thành viên.',
   },
@@ -95,6 +98,8 @@ export default function MemberDetailScreen() {
       .filter(
         (transaction) =>
           transaction.memberId === memberId ||
+          transaction.fromMemberId === memberId ||
+          transaction.toMemberId === memberId ||
           transaction.participants?.some((participant) => participant.memberId === memberId)
       )
       .sort((left, right) => right.date.localeCompare(left.date))
@@ -170,24 +175,37 @@ export default function MemberDetailScreen() {
           )}
         </View>
 
-        <View className="mt-5 flex-row gap-2">
-          <ActionPill
-            label={copy.topUpWallet}
-            icon="Plus"
-            onPress={() =>
-              router.push({
-                pathname: '/member/[id]/top-up',
-                params: { id: member.id },
-              })
-            }
-            className="flex-1"
-          />
+        <View className="mt-5 gap-2">
+          <View className="flex-row gap-2">
+            <ActionPill
+              label={copy.topUpWallet}
+              icon="Plus"
+              onPress={() =>
+                router.push({
+                  pathname: '/member/[id]/top-up',
+                  params: { id: member.id },
+                })
+              }
+              className="flex-1"
+            />
+            <ActionPill
+              label={copy.transferWallet}
+              icon="ArrowLeftRight"
+              tone="secondary"
+              onPress={() =>
+                router.push({
+                  pathname: '/member/[id]/transfer',
+                  params: { id: member.id },
+                })
+              }
+              className="flex-1"
+            />
+          </View>
           <ActionPill
             label={copy.roster}
             icon="UsersRound"
             tone="neutral"
             onPress={() => router.replace('/(tabs)/members')}
-            className="flex-1"
           />
         </View>
       </PaperCard>
@@ -209,6 +227,7 @@ export default function MemberDetailScreen() {
           transaction={transaction}
           subtitle={formatDateAndTime(transaction.date, locale)}
           language={language}
+          memberPerspectiveId={member.id}
           onPress={() =>
             router.push({
               pathname: '/transaction/[id]',

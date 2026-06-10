@@ -12,6 +12,7 @@ const MEMBER_CARD_COPY = {
     ungrouped: 'Ungrouped',
     viewDetail: 'View Detail',
     topUp: 'Top Up',
+    transfer: 'Transfer',
     noPhone: 'No phone on file',
     unknown: 'Unknown',
   },
@@ -20,6 +21,7 @@ const MEMBER_CARD_COPY = {
     ungrouped: 'Chưa phân nhóm',
     viewDetail: 'Xem chi tiết',
     topUp: 'Nạp tiền',
+    transfer: 'Trao đổi',
     noPhone: 'Chưa có số điện thoại',
     unknown: 'Chưa cập nhật',
   },
@@ -30,6 +32,7 @@ interface MemberCardProps {
   groups: Group[];
   onOpen?: () => void;
   onTopUp?: () => void;
+  onTransfer?: () => void;
 }
 
 export function MemberCard({
@@ -37,6 +40,7 @@ export function MemberCard({
   groups,
   onOpen,
   onTopUp,
+  onTransfer,
 }: MemberCardProps) {
   const { language } = useLanguage();
   const copy = MEMBER_CARD_COPY[language];
@@ -92,9 +96,29 @@ export function MemberCard({
         </View>
       </View>
 
-      <View className="mt-5 flex-row gap-2">
-        <ActionPill label={copy.viewDetail} icon="ArrowUpRight" tone="neutral" onPress={onOpen} className="flex-1" />
-        <ActionPill label={copy.topUp} icon="Plus" tone="secondary" onPress={onTopUp} className="flex-1" />
+      <View className="mt-5 gap-2">
+        <ActionPill
+          label={copy.viewDetail}
+          icon="ArrowUpRight"
+          tone="neutral"
+          onPress={onOpen}
+        />
+        <View className="flex-row gap-2">
+          <ActionPill
+            label={copy.topUp}
+            icon="Plus"
+            tone="secondary"
+            onPress={onTopUp}
+            className="flex-1"
+          />
+          <ActionPill
+            label={copy.transfer}
+            icon="ArrowLeftRight"
+            tone="secondary"
+            onPress={onTransfer}
+            className="flex-1"
+          />
+        </View>
       </View>
     </PaperCard>
   );

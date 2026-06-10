@@ -32,7 +32,8 @@ import { useOrdernowsStore } from '@/stores/useOrdernowsStore';
 const HOME_COPY = {
   en: {
     title: 'Home Ledger',
-    subtitle: 'Chronological board for debits, top-ups, and venue activity stored in your local JSON ledger.',
+    subtitle:
+      'Chronological board for debits, top-ups, transfers, and venue activity stored in your local JSON ledger.',
     newTransaction: 'New Transaction',
     dispatchBoard: 'Dispatch Board',
     dispatchTitle: 'Shared spending stays readable without seeded demo data.',
@@ -58,10 +59,11 @@ const HOME_COPY = {
     createGroup: 'Create group',
     activityFilter: 'Activity Filter',
     ledgerDirection: 'Ledger direction',
-    activityFilterDescription: 'Separate outgoing tabs from incoming top-ups.',
+    activityFilterDescription: 'Separate outgoing tabs, incoming top-ups, and member transfers.',
     allActivity: 'All Activity',
     debit: 'Debit',
     credit: 'Credit',
+    transfer: 'Transfer',
     recentActivity: 'Recent Activity',
     latestTransactions: 'Latest transactions',
     latestTransactionsDescription: 'Tap any ledger row to inspect participants and totals.',
@@ -86,7 +88,8 @@ const HOME_COPY = {
   },
   vi: {
     title: 'Sổ thu chi',
-    subtitle: 'Theo dõi các khoản chi, nạp tiền và hoạt động tại địa điểm từ dữ liệu JSON trên thiết bị.',
+    subtitle:
+      'Theo dõi các khoản chi, nạp tiền, trao đổi ví và hoạt động tại địa điểm từ dữ liệu JSON trên thiết bị.',
     newTransaction: 'Tạo giao dịch',
     dispatchBoard: 'Bảng theo dõi',
     dispatchTitle: 'Các khoản chi chung luôn rõ ràng và dễ kiểm tra.',
@@ -112,10 +115,11 @@ const HOME_COPY = {
     createGroup: 'Tạo nhóm',
     activityFilter: 'Lọc hoạt động',
     ledgerDirection: 'Loại giao dịch',
-    activityFilterDescription: 'Tách riêng các khoản chi và khoản nạp tiền.',
+    activityFilterDescription: 'Tách riêng khoản chi, khoản nạp và giao dịch trao đổi ví.',
     allActivity: 'Tất cả',
     debit: 'Chi',
     credit: 'Nạp',
+    transfer: 'Trao đổi',
     recentActivity: 'Hoạt động gần đây',
     latestTransactions: 'Giao dịch mới nhất',
     latestTransactionsDescription: 'Chạm vào một giao dịch để xem người tham gia và tổng tiền.',
@@ -142,7 +146,7 @@ const HOME_COPY = {
 
 export default function HomeScreen() {
   const [selectedGroupId, setSelectedGroupId] = useState('all');
-  const [transactionType, setTransactionType] = useState<'all' | 'debit' | 'credit'>('all');
+  const [transactionType, setTransactionType] = useState<'all' | 'debit' | 'credit' | 'transfer'>('all');
   const [visibleCount, setVisibleCount] = useState(4);
   const [pendingDeleteTransaction, setPendingDeleteTransaction] = useState<Transaction | null>(null);
   const [isBulkDeleteMode, setIsBulkDeleteMode] = useState(false);
@@ -184,6 +188,8 @@ export default function HomeScreen() {
           selectedGroupId === 'all' ||
           transaction.groupId === selectedGroupId ||
           Boolean(transaction.memberId && scopedMemberIds.has(transaction.memberId)) ||
+          Boolean(transaction.fromMemberId && scopedMemberIds.has(transaction.fromMemberId)) ||
+          Boolean(transaction.toMemberId && scopedMemberIds.has(transaction.toMemberId)) ||
           Boolean(
             transaction.participants?.some((participant) =>
               scopedMemberIds.has(participant.memberId)
@@ -467,6 +473,12 @@ export default function HomeScreen() {
           icon="ArrowUpRight"
           active={transactionType === 'credit'}
           onPress={() => setTransactionType('credit')}
+        />
+        <FilterChip
+          label={copy.transfer}
+          icon="ArrowLeftRight"
+          active={transactionType === 'transfer'}
+          onPress={() => setTransactionType('transfer')}
         />
       </ScrollView>
 

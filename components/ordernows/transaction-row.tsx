@@ -8,6 +8,7 @@ import {
   formatMonthDay,
   formatSignedVnd,
   formatTimeLabel,
+  formatVnd,
 } from '@/lib/ordernows';
 import type { AppLanguage } from '@/lib/useLanguage';
 import { cn } from '@/lib/utils';
@@ -26,6 +27,7 @@ interface TransactionRowProps {
   selected?: boolean;
   onToggleSelected?: () => void;
   language?: AppLanguage;
+  memberPerspectiveId?: string;
 }
 
 interface TransactionRowActionsProps {
@@ -67,8 +69,50 @@ export function TransactionRow({
   selected = false,
   onToggleSelected,
   language = 'en',
+  memberPerspectiveId,
 }: TransactionRowProps) {
-  const amount = transaction.type === 'credit' ? transaction.amount : -transaction.amount;
+  const isTransfer = transaction.type === 'transfer';
+  const amount =
+    transaction.type === 'credit'
+      ? transaction.amount
+      : isTransfer
+        ? transaction.toMemberId === memberPerspectiveId
+          ? transaction.amount
+          : transaction.fromMemberId === memberPerspectiveId
+            ? -transaction.amount
+            : 0
+        : -transaction.amount;
+  const amountText = isTransfer && !memberPerspectiveId ? formatVnd(transaction.amount) : formatSignedVnd(amount);
+  const amountTone =
+    isTransfer && !memberPerspectiveId
+      ? 'text-foreground'
+      : amount >= 0
+        ? 'text-success'
+        : 'text-destructive';
+  const badgeClass =
+    transaction.type === 'credit'
+      ? 'border-success bg-success'
+      : isTransfer
+        ? 'border-primary bg-primary'
+        : 'border-destructive bg-destructive';
+  const badgeTextClass =
+    transaction.type === 'credit'
+      ? 'text-success-foreground'
+      : isTransfer
+        ? 'text-primary-foreground'
+        : 'text-destructive-foreground';
+  const badgeLabel =
+    transaction.type === 'credit'
+      ? language === 'vi'
+        ? 'Nạp'
+        : 'Credit'
+      : isTransfer
+        ? language === 'vi'
+          ? 'Trao đổi'
+          : 'Transfer'
+        : language === 'vi'
+          ? 'Chi'
+          : 'Debit';
   const locale = language === 'vi' ? 'vi-VN' : 'en-US';
   const swipeableRef = useRef<SwipeToDeleteRowMethods | null>(null);
   const isSwipeableOpenRef = useRef(false);
@@ -136,24 +180,14 @@ export function TransactionRow({
             <View
               className={cn(
                 'rounded-full border-2 px-2.5 py-1',
-                transaction.type === 'credit'
-                  ? 'border-success bg-success'
-                  : 'border-destructive bg-destructive'
+                badgeClass
               )}>
               <Text
                 className={cn(
                   'text-caption uppercase tracking-[1.4px]',
-                  transaction.type === 'credit'
-                    ? 'text-success-foreground'
-                    : 'text-destructive-foreground'
+                  badgeTextClass
                 )}>
-                {transaction.type === 'credit'
-                  ? language === 'vi'
-                    ? 'Nạp'
-                    : 'Credit'
-                  : language === 'vi'
-                    ? 'Chi'
-                    : 'Debit'}
+                {badgeLabel}
               </Text>
             </View>
 
@@ -185,9 +219,9 @@ export function TransactionRow({
               numberOfLines={1}
               className={cn(
                 'shrink-0 text-h3 uppercase',
-                amount >= 0 ? 'text-success' : 'text-destructive'
+                amountTone
               )}>
-              {formatSignedVnd(amount)}
+              {amountText}
             </Text>
           </View>
           <Text className="mt-1 text-body text-muted-foreground">

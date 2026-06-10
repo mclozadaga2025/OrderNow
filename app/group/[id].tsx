@@ -85,12 +85,26 @@ export default function GroupDetailScreen() {
     [groupId, members]
   );
   const groupTransactions = useMemo(
-    () =>
-      transactions
-        .filter((transaction) => transaction.groupId === groupId)
+    () => {
+      const groupMemberIds = new Set(groupMembers.map((member) => member.id));
+
+      return transactions
+        .filter(
+          (transaction) =>
+            transaction.groupId === groupId ||
+            Boolean(transaction.memberId && groupMemberIds.has(transaction.memberId)) ||
+            Boolean(transaction.fromMemberId && groupMemberIds.has(transaction.fromMemberId)) ||
+            Boolean(transaction.toMemberId && groupMemberIds.has(transaction.toMemberId)) ||
+            Boolean(
+              transaction.participants?.some((participant) =>
+                groupMemberIds.has(participant.memberId)
+              )
+            )
+        )
         .sort((left, right) => right.date.localeCompare(left.date))
-        .slice(0, 20),
-    [groupId, transactions]
+        .slice(0, 20);
+    },
+    [groupId, groupMembers, transactions]
   );
   const totalBalance = groupMembers.reduce((sum, member) => sum + member.balance, 0);
 
@@ -164,6 +178,12 @@ export default function GroupDetailScreen() {
           onTopUp={() =>
             router.push({
               pathname: '/member/[id]/top-up',
+              params: { id: member.id },
+            })
+          }
+          onTransfer={() =>
+            router.push({
+              pathname: '/member/[id]/transfer',
               params: { id: member.id },
             })
           }

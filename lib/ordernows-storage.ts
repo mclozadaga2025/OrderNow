@@ -179,21 +179,40 @@ function sanitizeTransactions(value: unknown) {
   const seen = new Set<string>();
 
   return readRecordArray(value).map((transaction) => {
-    const type = transaction.type === 'credit' ? 'credit' : 'debit';
+    const type =
+      transaction.type === 'credit'
+        ? 'credit'
+        : transaction.type === 'transfer'
+          ? 'transfer'
+          : 'debit';
     const groupId = readOptionalString(transaction.groupId);
     const venueId = readOptionalString(transaction.venueId);
     const memberId = readOptionalString(transaction.memberId);
+    const fromMemberId = readOptionalString(transaction.fromMemberId);
+    const toMemberId = readOptionalString(transaction.toMemberId);
 
     return {
       id: uniqueId(transaction.id, 'txn', seen),
       type,
-      title: readString(transaction.title, type === 'credit' ? 'Wallet Top-up' : 'Shared Tab'),
-      subtitle: readString(transaction.subtitle, type === 'credit' ? 'Manual recharge' : 'Shared tab'),
+      title: readString(
+        transaction.title,
+        type === 'credit' ? 'Wallet Top-up' : type === 'transfer' ? 'Member Transfer' : 'Shared Tab'
+      ),
+      subtitle: readString(
+        transaction.subtitle,
+        type === 'credit'
+          ? 'Manual recharge'
+          : type === 'transfer'
+            ? 'Wallet transfer'
+            : 'Shared tab'
+      ),
       amount: Math.max(readNumber(transaction.amount), 0),
       date: readString(transaction.date, new Date().toISOString()),
       groupId,
       venueId,
       memberId,
+      fromMemberId,
+      toMemberId,
       note: readOptionalString(transaction.note),
       channel: readOptionalString(transaction.channel),
       subtotal: typeof transaction.subtotal === 'number' ? Math.max(transaction.subtotal, 0) : undefined,
@@ -223,6 +242,22 @@ function getTransactionBalanceChanges(transaction: Transaction) {
         (balanceChanges.get(participant.memberId) ?? 0) - participant.amount
       );
     });
+  }
+
+  if (transaction.type === 'transfer') {
+    if (transaction.fromMemberId) {
+      balanceChanges.set(
+        transaction.fromMemberId,
+        (balanceChanges.get(transaction.fromMemberId) ?? 0) - transaction.amount
+      );
+    }
+
+    if (transaction.toMemberId) {
+      balanceChanges.set(
+        transaction.toMemberId,
+        (balanceChanges.get(transaction.toMemberId) ?? 0) + transaction.amount
+      );
+    }
   }
 
   return balanceChanges;

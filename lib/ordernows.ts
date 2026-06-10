@@ -58,7 +58,7 @@ export interface TransactionParticipant {
 
 export interface Transaction {
   id: string;
-  type: 'debit' | 'credit';
+  type: 'debit' | 'credit' | 'transfer';
   title: string;
   subtitle: string;
   amount: number;
@@ -66,6 +66,8 @@ export interface Transaction {
   groupId?: string;
   venueId?: string;
   memberId?: string;
+  fromMemberId?: string;
+  toMemberId?: string;
   note?: string;
   channel?: string;
   subtotal?: number;

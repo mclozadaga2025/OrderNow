@@ -168,6 +168,12 @@ export default function MembersScreen() {
               params: { id: member.id },
             })
           }
+          onTransfer={() =>
+            router.push({
+              pathname: '/member/[id]/transfer',
+              params: { id: member.id },
+            })
+          }
         />
       ))}
 

@@ -51,6 +51,7 @@ const ROOT_COPY = {
     newMember: 'New Member',
     memberDetail: 'Member Detail',
     topUpWallet: 'Top Up Wallet',
+    transferWallet: 'Transfer Wallet',
     newVenue: 'New Venue',
     venueDetail: 'Venue Detail',
     addMenuItem: 'Add Menu Item',
@@ -64,6 +65,7 @@ const ROOT_COPY = {
     newMember: 'Thêm thành viên',
     memberDetail: 'Chi tiết thành viên',
     topUpWallet: 'Nạp tiền vào ví',
+    transferWallet: 'Trao đổi ví',
     newVenue: 'Thêm địa điểm',
     venueDetail: 'Chi tiết địa điểm',
     addMenuItem: 'Thêm món',
@@ -247,6 +249,7 @@ function RootContent() {
             <Stack.Screen name="member/new" options={{ title: copy.newMember }} />
             <Stack.Screen name="member/[id]" options={{ title: copy.memberDetail }} />
             <Stack.Screen name="member/[id]/top-up" options={{ title: copy.topUpWallet }} />
+            <Stack.Screen name="member/[id]/transfer" options={{ title: copy.transferWallet }} />
             <Stack.Screen name="venue/new" options={{ title: copy.newVenue }} />
             <Stack.Screen name="venue/[id]" options={{ title: copy.venueDetail }} />
             <Stack.Screen name="venue/[id]/add-item" options={{ title: copy.addMenuItem }} />

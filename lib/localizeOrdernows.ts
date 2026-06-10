@@ -15,6 +15,10 @@ const VI_ORDERNOWS_TEXT: Record<string, string> = {
   'Restored wallet top-up': 'Đã hoàn tác khoản nạp ví',
   'Wallet Refund': 'Hoàn tiền vào ví',
   'Restored shared spending': 'Đã hoàn lại khoản chi chung',
+  'Member Transfer': 'Trao đổi ví',
+  'Wallet transfer': 'Chuyển ví',
+  'Transfer Reversal': 'Hoàn tác trao đổi',
+  'Restored member transfer': 'Đã hoàn tác giao dịch trao đổi',
   'Balance restore': 'Khôi phục số dư',
 };
 

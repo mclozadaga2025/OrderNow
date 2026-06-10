@@ -64,6 +64,13 @@ interface NewTransactionInput {
   participants?: TransactionParticipant[];
 }
 
+interface NewTransferInput {
+  fromMemberId: string;
+  toMemberId: string;
+  amount: number;
+  note?: string;
+}
+
 interface OrdernowsState {
   ledgerName: string;
   currentUserId: string;
@@ -86,6 +93,7 @@ interface OrdernowsState {
   deleteMenuItem: (venueId: string, itemId: string) => void;
   addVenue: (input: NewVenueInput) => string;
   topUpMember: (memberId: string, amount: number, note?: string) => string;
+  transferMember: (input: NewTransferInput) => string;
   addTransaction: (input: NewTransactionInput) => string;
   deleteTransaction: (transactionId: string) => void;
   deleteTransactions: (transactionIds: string[]) => void;
@@ -154,6 +162,18 @@ function applyTransactionToMemberBalances(
     });
   }
 
+  if (transaction.type === 'transfer') {
+    if (transaction.fromMemberId) {
+      const currentChange = balanceChanges.get(transaction.fromMemberId) ?? 0;
+      balanceChanges.set(transaction.fromMemberId, currentChange - transaction.amount * direction);
+    }
+
+    if (transaction.toMemberId) {
+      const currentChange = balanceChanges.get(transaction.toMemberId) ?? 0;
+      balanceChanges.set(transaction.toMemberId, currentChange + transaction.amount * direction);
+    }
+  }
+
   return members.map((member) => {
     const balanceChange = balanceChanges.get(member.id);
 
@@ -176,6 +196,8 @@ function transactionReferencesGroupOrMembers(
   return (
     transaction.groupId === groupId ||
     Boolean(transaction.memberId && memberIds.has(transaction.memberId)) ||
+    Boolean(transaction.fromMemberId && memberIds.has(transaction.fromMemberId)) ||
+    Boolean(transaction.toMemberId && memberIds.has(transaction.toMemberId)) ||
     Boolean(
       transaction.participants?.some((participant) => memberIds.has(participant.memberId))
     )
@@ -195,6 +217,24 @@ function createRestorationTransactions(transaction: Transaction): Transaction[] 
         amount: transaction.amount,
         date: restoredAt,
         memberId: transaction.memberId,
+        channel: 'Balance restore',
+        restorationOfId: transaction.id,
+      },
+    ];
+  }
+
+  if (transaction.type === 'transfer' && transaction.fromMemberId && transaction.toMemberId) {
+    return [
+      {
+        id: makeId('transfer-restore'),
+        type: 'transfer',
+        title: 'Transfer Reversal',
+        subtitle: 'Restored member transfer',
+        amount: transaction.amount,
+        date: restoredAt,
+        groupId: transaction.groupId,
+        fromMemberId: transaction.toMemberId,
+        toMemberId: transaction.fromMemberId,
         channel: 'Balance restore',
         restorationOfId: transaction.id,
       },
@@ -570,6 +610,59 @@ export const useOrdernowsStore = create<OrdernowsState>((set, get) => {
         ],
       }));
       persistCurrentState('Top-up saved to local JSON.');
+
+      return transactionId;
+    },
+    transferMember: (input) => {
+      const fromMember = get().members.find((entry) => entry.id === input.fromMemberId);
+      const toMember = get().members.find((entry) => entry.id === input.toMemberId);
+      const transactionId = makeId('transfer');
+
+      if (!fromMember || !toMember || fromMember.id === toMember.id || input.amount <= 0) {
+        return transactionId;
+      }
+
+      const sharedGroupId =
+        fromMember.groupIds.find((groupId) => toMember.groupIds.includes(groupId)) ??
+        fromMember.groupIds[0] ??
+        toMember.groupIds[0];
+
+      set((state) => ({
+        members: state.members.map((entry) => {
+          if (entry.id === fromMember.id) {
+            return {
+              ...entry,
+              balance: entry.balance - input.amount,
+            };
+          }
+
+          if (entry.id === toMember.id) {
+            return {
+              ...entry,
+              balance: entry.balance + input.amount,
+            };
+          }
+
+          return entry;
+        }),
+        transactions: [
+          {
+            id: transactionId,
+            type: 'transfer',
+            title: 'Member Transfer',
+            subtitle: `${fromMember.name} -> ${toMember.name}`,
+            amount: input.amount,
+            date: new Date().toISOString(),
+            groupId: sharedGroupId,
+            fromMemberId: fromMember.id,
+            toMemberId: toMember.id,
+            note: input.note,
+            channel: 'Wallet transfer',
+          },
+          ...state.transactions,
+        ],
+      }));
+      persistCurrentState('Transfer saved to local JSON.');
 
       return transactionId;
     },
