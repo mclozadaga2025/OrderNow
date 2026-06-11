@@ -15,7 +15,7 @@ import type {
 } from '@/lib/ordernows';
 import type { IconName } from '@/lib/icons/LucideIcon';
 
-export const ORDERNOWS_STORAGE_KEY = '@ordernows/local-json-ledger-v1';
+const ORDERNOWS_STORAGE_KEY = '@ordernows/local-json-ledger-v1';
 export const ORDERNOWS_STORAGE_VERSION = 2;
 
 export interface OrdernowsSnapshot {
@@ -342,7 +342,7 @@ export function parseOrdernowsSnapshot(text: string): OrdernowsSnapshot {
   };
 }
 
-export function serializeOrdernowsSnapshot(snapshot: OrdernowsSnapshot) {
+function serializeOrdernowsSnapshot(snapshot: OrdernowsSnapshot) {
   return JSON.stringify(snapshot, null, 2);
 }
 

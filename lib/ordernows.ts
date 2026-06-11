@@ -177,14 +177,6 @@ export function formatTimeLabel(value: string, locale = 'en-US') {
   }).format(new Date(value));
 }
 
-export function formatHistoryDate(value: string, locale = 'en-US') {
-  return new Intl.DateTimeFormat(locale, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(value));
-}
-
 export function getBalanceTone(value: number) {
   if (value <= 0) {
     return 'text-destructive';

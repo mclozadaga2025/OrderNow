@@ -3,7 +3,8 @@ const APP_DESCRIPTION =
 
 module.exports = {
   android: {
-    edgeToEdgeEnabled: false,
+    // Android 16 (SDK 54 target) enforces edge-to-edge; the old
+    // `edgeToEdgeEnabled` opt-out is deprecated and intentionally omitted.
     softwareKeyboardLayoutMode: "resize",
     icon: "./assets/images/icon.png",
     adaptiveIcon: {

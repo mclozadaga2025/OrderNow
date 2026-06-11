@@ -78,6 +78,24 @@ const styles = StyleSheet.create({
   },
 });
 
+// Reads the navigation segments in its own component so route changes only
+// re-render this small header block instead of every OrdernowsScreen subtree.
+function ScreenActions({ headerAction }: { headerAction?: ReactNode }) {
+  const [firstSegment] = useSegments();
+
+  if (firstSegment !== '(tabs)') {
+    return null;
+  }
+
+  return (
+    <View className="ml-auto flex-row items-center gap-2">
+      {headerAction}
+      <ThemeToggle />
+      <OrdernowsSettingsMenu />
+    </View>
+  );
+}
+
 export function OrdernowsScreen({
   title,
   subtitle,
@@ -86,24 +104,16 @@ export function OrdernowsScreen({
   keyboardAware = true,
   children,
 }: OrdernowsScreenProps) {
-  const [firstSegment] = useSegments();
-  const showScreenActions = firstSegment === '(tabs)';
   const content = (
     <View className="min-h-full px-5 pb-40 pt-3">
       <View className="mb-8">
-        <View className="mb-3 flex-row items-start justify-between gap-3">
+        <View className="mb-3 flex-row flex-wrap items-start justify-between gap-3">
           <View className="self-start rounded-full border-2 border-border bg-card px-3 py-1.5">
             <Text className="text-caption uppercase tracking-[1.8px] text-muted-foreground">
               {badge}
             </Text>
           </View>
-          {showScreenActions ? (
-            <View className="flex-row items-center gap-2">
-              {headerAction}
-              <ThemeToggle />
-              <OrdernowsSettingsMenu />
-            </View>
-          ) : null}
+          <ScreenActions headerAction={headerAction} />
         </View>
         <Text className="text-h1 leading-[52px] text-foreground uppercase">{title}</Text>
         <Text className="mt-2 max-w-[320px] text-body text-muted-foreground">{subtitle}</Text>

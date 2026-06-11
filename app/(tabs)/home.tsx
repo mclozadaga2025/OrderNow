@@ -226,13 +226,20 @@ export default function HomeScreen() {
     filteredTransactions.length > 0 &&
     selectedTransactionCount === filteredTransactions.length;
 
-  const totalCredit = filteredTransactions
-    .filter((transaction) => transaction.type === 'credit')
-    .reduce((sum, transaction) => sum + transaction.amount, 0);
+  const { totalCredit, totalDebit } = useMemo(() => {
+    let credit = 0;
+    let debit = 0;
 
-  const totalDebit = filteredTransactions
-    .filter((transaction) => transaction.type === 'debit')
-    .reduce((sum, transaction) => sum + transaction.amount, 0);
+    for (const transaction of filteredTransactions) {
+      if (transaction.type === 'credit') {
+        credit += transaction.amount;
+      } else if (transaction.type === 'debit') {
+        debit += transaction.amount;
+      }
+    }
+
+    return { totalCredit: credit, totalDebit: debit };
+  }, [filteredTransactions]);
   const availableBalance = scopedMembers.reduce((sum, member) => sum + member.balance, 0);
 
   const currentGroupName =
