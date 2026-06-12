@@ -97,7 +97,6 @@ module.exports = {
         headOrigin: "https://7dde2fb7ff.sandbox.draftbit.dev:5100",
       },
     ],
-
     ["./plugins/draftbit-auto-launch-url-plugin"],
   ],
 
