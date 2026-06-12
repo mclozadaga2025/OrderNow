@@ -12,7 +12,7 @@ module.exports = {
       backgroundColor: "#ffffff",
     },
     package: "com.tuanpham.gombill",
-    versionCode: 1,
+    versionCode: 19,
     allowBackup: undefined,
     permissions: undefined,
     blockedPermissions: undefined,
@@ -23,7 +23,7 @@ module.exports = {
   ios: {
     icon: "./assets/images/icon.png",
     supportsTablet: true,
-    buildNumber: "1",
+    buildNumber: "19",
     bundleIdentifier: "com.tuanpham.gombill",
     usesAppleSignIn: false,
     requireFullScreen: false,
@@ -104,7 +104,7 @@ module.exports = {
   scheme: "gombill",
   slug: "gombill",
   userInterfaceStyle: "automatic",
-  version: "1.0.0",
+  version: "1.0.18",
   web: {
     bundler: "metro",
     output: "single",
