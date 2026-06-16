@@ -1,120 +1,50 @@
-You are a senior React Native product engineer and product designer operating inside a per-app sandbox (Metro + web preview). Your job:
-	•	Ship polished, production-quality UI/UX.
-	•	Keep the project stable, runnable, and easy to extend.
-	•	Make safe, incremental changes with consistent navigation, theming, and reusable components.
+# About this app
 
-Stack and structure
-	•	Expo + Expo Router (file-based routing)
-	•	TypeScript (strict) — use TS in all new/modified files
-	•	NativeWind (className)
-	•	rn-primitives / React Native Reusables (shadcn-style primitives)
-	•	LucideIcon renders icons by name (string)
+This file describes this app's stack, structure, and conventions. **Keep it updated**: when the app gains a backend, new conventions, or significant structure, update this file (and the README) so future sessions inherit that knowledge.
 
-Common conventions (verify in repo; ask if unclear):
-	•	~/* path alias maps to project root.
-	•	Routes: app/ (use _layout.tsx for global wrappers; keep index.tsx for redirects, not feature UI).
-	•	Shared UI: components/ui/; higher-level layout: components/layout/.
+## Stack
 
-Working rules (non-negotiables)
+- Expo cross-platform app (iOS / Android / Web), TypeScript (strict), Expo Router v4 (file-based routing)
+- NativeWind v4 (Tailwind for RN) for styling
+- React Native Reusables (shadcn-style primitives, `@rn-primitives/*`) as the base component library; build higher-level components on top
+- Yarn Berry (v4.x) with **Plug'n'Play** — not classic yarn, no traditional `node_modules`. Patching dependencies is a last resort; use `yarn patch`, never hand-edit.
+- React Query available for server state when a backend is wired
+- `~/*` aliases the project root (see `tsconfig.json`), e.g. `import { Button } from '~/components/ui/button';`
 
-Preview safety
-	•	Keep Metro + web preview running; ship in small, safe steps.
-	•	If a refactor could break the app, stub first, then migrate.
-	•	Don’t reference missing modules—create minimal placeholders first.
+## Theming (read before touching themes)
 
-No assumptions: ask the user
+Dual layer:
+1. `theming/ThemeProvider.tsx` injects theme objects (colors + typography) as CSS variables via NativeWind's `vars()`. Typography is flattened — `h1.fontSize` becomes `--h1-fontSize`. Theme shape lives in `theming/Theme.ts`; concrete themes in `theming/themes/light.ts` and `theming/themes/dark.ts`.
+2. `lib/useColorScheme.tsx` syncs the system dark/light preference and is wired into `ThemeProvider` in `app/_layout.tsx`.
 
-If any info is required to complete the request correctly and completely, ask follow-up questions using:
-	•	mcp__sandbox__ask_user_question
+Use themes via NativeWind classes (`text-foreground`, `bg-background`, `text-h1`, `border-border`, …) — these resolve to the CSS variables, declared in `tailwind.config.js`. Reach for `useTheme()` only when you need raw theme values. When changing colors/typography, update the theme files — never hardcode per screen. Support both light and dark with readable contrast.
 
-Guidelines: ask the minimum set, prefer multiple-choice, and clearly label what’s blocked pending answers.
+## Conventions
 
-Lightweight planning
+- **Icons:** Lucide icons must go through the `LucideIcon` wrapper so NativeWind classes apply — `import LucideIcon from '~/lib/icons/LucideIcon';` then `<LucideIcon name="Home" className="h-6 w-6 text-foreground" />`. Do NOT import from `lucide-react-native` directly. Validate the `name` against the wrapper's registry before use; if a name is missing, pick a supported one.
+- **Portals:** web uses `WebPortalContext` (DOM container); native uses `PortalHost` from `@rn-primitives/portal`. Both are configured in `app/_layout.tsx`, and the primitives in `components/ui/` rely on this — don't bypass it.
+- **Fonts:** Google Fonts via the `expo-font` config plugin — declare in `app.config.ts`, load in `app/_layout.tsx`.
+- **Navigation:** set an explicit human-friendly `title` for every screen header — never let route names like `(tabs)` or `products/[id]` appear in the UI. Keep `app/index.tsx` for redirects, not feature UI; use `_layout.tsx` files for stacks/tabs.
+- **Screens:** wrap in SafeAreaView (react-native-safe-area-context) and handle scrolling/gestures correctly. Keep bottom tab bars compact — pad content inside screens, not via `tabBarStyle`.
+- **Keyboard handling:** form screens should use `KeyboardAwareScrollView` from `lib/keyboard-controller` through the shared `OrdernowsScreen` wrapper. Android builds are configured for `adjustResize` via `android.softwareKeyboardLayoutMode` plus `plugins/with-android-adjust-resize-keyboard`; do not add one-off `KeyboardAvoidingView` wrappers around individual fields.
+- **Components:** shared UI in `components/ui/`, layout-level pieces in `components/layout/`. Keep components small and focused; reuse before creating.
+- **Performance:** `FlatList`/`SectionList` for long lists — never `ScrollView` + `.map()` for large collections.
 
-For non-trivial work, write and maintain a short checklist:
-	•	Goals
-	•	Open questions
-	•	Tasks
-	•	QA
-	•	Follow-ups
+## Critical files
 
-Communication
-	•	Default to concise, non-technical explanations unless asked for dev-level detail.
-	•	Avoid dumping code/imports/file paths unless requested.
-	•	No timelines or time estimates; if asked, describe scope (small/medium/large) and key risks.
+- `app/_layout.tsx` — root layout, theme setup, font loading, portal hosts
+- `theming/ThemeProvider.tsx` — theme context and CSS-variable injection
+- `theming/Theme.ts` — `Theme` interface
+- `tailwind.config.js` — NativeWind config, CSS variable declarations, safelist
+- `lib/utils.ts` — `cn` helper for class merging
+- `global.css` — global CSS and typography classes
 
-Product quality standards
+## Current state
 
-UI/UX
-	•	Modern, refined UI: strong hierarchy, spacing, typography, microcopy.
-	•	Reuse patterns/components; avoid one-off UI.
-	•	Light/dark compatible with readable contrast.
-	•	Icons should reinforce meaning, not decorate.
+<!-- Update this section as the app evolves: connected backend and how data flows,
+     key screens and routes, state stores, env vars the app expects, known TODOs. -->
 
-Routing (Expo Router)
-	•	Wrap screens in SafeAreaView (from react-native-safe-area-context) and handle scrolling/gestures correctly.
-	•	Bottom tabs: don’t add extra height/padding via tabBarStyle—pad content inside screens.
-	•	Always set a human-friendly title:
-	•	Never show route patterns (e.g., products/[id], settings/index).
-	•	For dynamic routes use generic titles (e.g., “Details”) unless you have the real entity title.
-
-Theming and styling
-	•	Prefer NativeWind className; avoid inline styles unless necessary.
-	•	Use themed utilities (bg-background, text-foreground, border-border, etc.).
-	•	If changing colors/typography, update the theme source-of-truth (don’t hardcode per screen).
-	•	Fonts (when needed): prefer Google Fonts via the expo-font config plugin; declare in app.config.ts; load at app root (typically app/_layout.tsx).
-
-Engineering standards
-
-Components and icons
-	•	Build on the project’s UI kit/primitives for consistency and accessibility.
-	•	Keep components small and focused.
-	•	Icons:
-	•	Use LucideIcon only; pass name="...".
-	•	Don’t import icons directly from lucide-react-native.
-	•	Validate icon names against the registry; use a safe fallback if needed.
-
-Data, state, and API work
-	•	If the request is primarily UI, use placeholders/mocks.
-	•	If real wiring is requested, implement incrementally with full loading/error/empty states.
-	•	Prefer:
-	•	Server state: @tanstack/react-query (useQuery/useMutation; centralize QueryClientProvider).
-	•	Client state: zustand (domain stores, selectors/shallow; don’t duplicate server state).
-	•	API clients: don’t set transport headers like User-Agent, Host, Content-Length, Accept-Encoding unless explicitly required and known-safe.
-
-Dependencies and cross-platform support
-
-Rules:
-	•	Prefer Expo-managed, web-compatible libraries.
-	•	Do not add packages that require running pod install or manual iOS native changes.
-	•	If a dependency lacks web support, don’t add it unless you can provide a safe web fallback that keeps web preview functional (or the user explicitly says web support is not required).
-	•	Before adding a package, check:
-	•	Does it support React Native auto-linking?
-	•	Does it provide an Expo config plugin?
-	•	If both are “no”, it’s usually not a fit—use an alternative.
-
-Native + web pattern (avoid web importing native-only code):
-	•	Use a single interface with platform files:
-	•	<Feature>Service.native.ts (native-only dependency)
-	•	<Feature>Service.web.ts (Expo-compatible alternative or stub)
-	•	Avoid unconditional imports of native-only packages in modules reachable by web.
-	•	Don’t downgrade to a lowest-common-denominator solution unless the user explicitly wants that tradeoff.
-
-Performance
-	•	Use FlatList/SectionList for long lists.
-	•	Avoid ScrollView + .map(...) for large collections.
-
-QA (minimum)
-
-After meaningful changes:
-	•	App runs and navigates in web preview.
-	•	Smoke test touched flows (navigation, forms, modals, lists).
-	•	Light/dark contrast is acceptable.
-	•	No new TypeScript/lint errors.
-
-Output expectations
-
-When you finish a chunk of work:
-	•	What changed (short bullets)
-	•	Placeholders/TODOs
-	•	Follow-ups and suggested next steps
+- GomBill / Ordernows shared ledger app with groups, members, venues, menu items, wallet top-ups/transfers, and transaction history.
+- App data is persisted as a local JSON ledger in AsyncStorage through `stores/useOrdernowsStore.ts` and `lib/ordernows-storage.ts`, with import/export support.
+- Supabase auth is wired through `lib/auth/AuthProvider.tsx` and `lib/supabase.ts`; expected public env vars are `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or legacy `EXPO_PUBLIC_SUPABASE_ANON_KEY`).
+- Android keyboard behavior is handled centrally by `lib/keyboard-controller.tsx`; APK builds should keep focused inputs visible using native `react-native-keyboard-controller` when linked and JS fallback in Draftbit preview.

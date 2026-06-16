@@ -1368,15 +1368,15 @@ __metadata:
 
 "@draftbit/babel-plugin-inject-jsx-source@file:/usr/local/node_modules/@draftbit/babel-plugin-inject-jsx-source::locator=gombill%40workspace%3A.":
   version: 0.0.0
-  resolution: "@draftbit/babel-plugin-inject-jsx-source@file:/usr/local/node_modules/@draftbit/babel-plugin-inject-jsx-source#/usr/local/node_modules/@draftbit/babel-plugin-inject-jsx-source::hash=c029d1&locator=gombill%40workspace%3A."
-  checksum: 10c0/8cef504d443c3dcf952631cb997a628b20b92e55706fd34b81df729e31dc43e9bbff489da0d457b2335526e4e0f0e567801d1a628c0c990d2b1e6cb0c6d1625a
+  resolution: "@draftbit/babel-plugin-inject-jsx-source@file:/usr/local/node_modules/@draftbit/babel-plugin-inject-jsx-source#/usr/local/node_modules/@draftbit/babel-plugin-inject-jsx-source::hash=4070e0&locator=gombill%40workspace%3A."
+  checksum: 10c0/9a07b48b5d49e5a6c43f352995bbe5793aa23565053ff1e97ca7437a518727213308652dd7f5f01759fce6b2d2c5440b786149606474110c9bd5afbd96a6c120
   languageName: node
   linkType: hard
 
 "@draftbit/iframe-element-picker@file:/usr/local/node_modules/@draftbit/iframe-element-picker::locator=gombill%40workspace%3A.":
   version: 0.0.0
-  resolution: "@draftbit/iframe-element-picker@file:/usr/local/node_modules/@draftbit/iframe-element-picker#/usr/local/node_modules/@draftbit/iframe-element-picker::hash=d788d7&locator=gombill%40workspace%3A."
-  checksum: 10c0/6345ec13f3ab1d794ee83eae21acc69ecf758e1310979dbfab0eaa669c02145e6dc0c5c77188f847873507839904a58ea1bc375fc144c52ad6087393db74164a
+  resolution: "@draftbit/iframe-element-picker@file:/usr/local/node_modules/@draftbit/iframe-element-picker#/usr/local/node_modules/@draftbit/iframe-element-picker::hash=fcc2e8&locator=gombill%40workspace%3A."
+  checksum: 10c0/4f182827edaaea6c49df5de038273bfe510502a963496b529ca45c0625a9d3cc75c85e520e74f48cfbd3571007cfe16d118c5ee437a1edb8e74213210935010d
   languageName: node
   linkType: hard
 

@@ -12,7 +12,7 @@ module.exports = {
       backgroundColor: "#ffffff",
     },
     package: "com.tuanpham.gombill",
-    versionCode: 19,
+    versionCode: 20,
     allowBackup: undefined,
     permissions: undefined,
     blockedPermissions: undefined,
@@ -23,7 +23,7 @@ module.exports = {
   ios: {
     icon: "./assets/images/icon.png",
     supportsTablet: true,
-    buildNumber: "19",
+    buildNumber: "20",
     bundleIdentifier: "com.tuanpham.gombill",
     usesAppleSignIn: false,
     requireFullScreen: false,
@@ -97,13 +97,15 @@ module.exports = {
         headOrigin: "https://7dde2fb7ff.sandbox.draftbit.dev:5100",
       },
     ],
+
+    ["./plugins/with-android-adjust-resize-keyboard"],
     ["./plugins/draftbit-auto-launch-url-plugin"],
   ],
 
   scheme: "gombill",
   slug: "gombill",
   userInterfaceStyle: "automatic",
-  version: "1.0.18",
+  version: "1.0.19",
   web: {
     bundler: "metro",
     output: "single",

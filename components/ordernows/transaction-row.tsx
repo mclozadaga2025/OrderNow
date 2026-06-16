@@ -60,6 +60,24 @@ function TransactionRowActions({ language, onDelete, close }: TransactionRowActi
   );
 }
 
+function getMemberDebitAmount(transaction: Transaction, memberPerspectiveId?: string) {
+  if (!memberPerspectiveId) {
+    return transaction.amount;
+  }
+
+  const participantTotal = transaction.participants?.reduce(
+    (sum, participant) =>
+      participant.memberId === memberPerspectiveId ? sum + participant.amount : sum,
+    0
+  );
+
+  if (participantTotal && participantTotal > 0) {
+    return participantTotal;
+  }
+
+  return transaction.memberId === memberPerspectiveId ? transaction.amount : 0;
+}
+
 export function TransactionRow({
   transaction,
   subtitle,
@@ -81,7 +99,7 @@ export function TransactionRow({
           : transaction.fromMemberId === memberPerspectiveId
             ? -transaction.amount
             : 0
-        : -transaction.amount;
+        : -getMemberDebitAmount(transaction, memberPerspectiveId);
   const amountText = isTransfer && !memberPerspectiveId ? formatVnd(transaction.amount) : formatSignedVnd(amount);
   const amountTone =
     isTransfer && !memberPerspectiveId

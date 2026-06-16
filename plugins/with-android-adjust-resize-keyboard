@@ -1,0 +1,11 @@
+const { AndroidConfig, withAndroidManifest } = require('@expo/config-plugins');
+
+const withAndroidAdjustResizeKeyboard = (config) =>
+  withAndroidManifest(config, (conf) => {
+    const mainActivity = AndroidConfig.Manifest.getMainActivityOrThrow(conf.modResults);
+    mainActivity.$['android:windowSoftInputMode'] = 'adjustResize';
+
+    return conf;
+  });
+
+module.exports = withAndroidAdjustResizeKeyboard;

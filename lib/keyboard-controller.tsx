@@ -12,6 +12,7 @@ import {
 import {
   Dimensions,
   Keyboard,
+  NativeModules,
   Platform,
   ScrollView,
   StyleSheet,
@@ -44,7 +45,7 @@ function hasNativeKeyboardController() {
   }
 
   try {
-    return Boolean(TurboModuleRegistry.get('KeyboardController'));
+    return Boolean(NativeModules.KeyboardController) || Boolean(TurboModuleRegistry.get('KeyboardController'));
   } catch {
     return false;
   }
@@ -63,6 +64,7 @@ function loadKeyboardController(): KeyboardControllerModule | null {
 }
 
 const keyboardController = loadKeyboardController();
+const shouldUseNativeKeyboardController = Platform.OS === 'android' && Boolean(keyboardController);
 
 const styles = StyleSheet.create({
   container: {
@@ -97,6 +99,16 @@ export function KeyboardProvider({ children }: PropsWithChildren) {
     };
   }, []);
 
+  if (shouldUseNativeKeyboardController && keyboardController?.KeyboardProvider) {
+    const NativeKeyboardProvider = keyboardController.KeyboardProvider;
+
+    return (
+      <NativeKeyboardProvider preload={false} preserveEdgeToEdge>
+        {children}
+      </NativeKeyboardProvider>
+    );
+  }
+
   return <>{children}</>;
 }
 
@@ -118,6 +130,27 @@ export const KeyboardAwareScrollView = forwardRef<ScrollView, KeyboardAwareScrol
       children,
       ...scrollViewProps
     } = props;
+
+    if (shouldUseNativeKeyboardController && keyboardController?.KeyboardAwareScrollView) {
+      const NativeKeyboardAwareScrollView = keyboardController.KeyboardAwareScrollView;
+
+      return (
+        <KeyboardAwareFocusContext.Provider value={null}>
+          <NativeKeyboardAwareScrollView
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={16}
+            {...scrollViewProps}
+            ref={ref}
+            bottomOffset={bottomOffset}
+            contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
+            extraKeyboardSpace={extraKeyboardSpace}
+            style={[styles.container, style]}>
+            {children}
+          </NativeKeyboardAwareScrollView>
+        </KeyboardAwareFocusContext.Provider>
+      );
+    }
 
     // Native-only props that React Native's ScrollView does not understand.
     delete scrollViewProps.disableScrollOnKeyboardHide;
